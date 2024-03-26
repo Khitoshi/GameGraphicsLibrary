@@ -78,9 +78,28 @@
   <ItemGroup>
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Platform\Window.cpp" />
+    <ClCompile Include="src\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12CommandAllocator.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12CommandList.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12CommandQueue.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12Core.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12Device.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12Fence.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12Interface.cpp" />
     <ClCompile Include="src\TestRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Renderer\Renderer.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12CommandAllocator.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12CommandList.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12CommandQueue.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12CommonHeaders.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12Core.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12Device.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12Fence.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12Interface.h" />
+    <ClInclude Include="src\RHI\RHICommandQueue.h" />
+    <ClInclude Include="src\RHI\RHIPlatformInterface.h" />
     <ClInclude Include="src\Utilities\ContainerTypes.h" />
     <ClInclude Include="src\Platform\Window.h" />
     <ClInclude Include="src\Test.h" />

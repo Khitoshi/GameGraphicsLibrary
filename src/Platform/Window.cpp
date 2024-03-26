@@ -306,7 +306,7 @@ namespace Platform {
 
         if (info.hwnd)
         {
-            //エラーの誤報を防ぐために一度クリア
+            //エラーの誤報を防ぐために一度0クリア
             DEBUG_OP(SetLastError(0));
             const window_id id{ AddToWindows(info) };
             //USERDATA領域にIDを設定

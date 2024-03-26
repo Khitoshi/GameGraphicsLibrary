@@ -2,8 +2,10 @@
 #include "..\Platform\Window.h"
 //#include "..\Graphics\Renderer.h"
 #include "TestRenderer.h"
+#include "Renderer/Renderer.h"
 
-Platform::Window _windows[4];
+//Platform::Window _windows[4];
+Renderer::RenderSurface _surfaces[4];
 
 LRESULT win_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
@@ -12,9 +14,9 @@ LRESULT win_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
     case WM_DESTROY:
     {
         bool all_closed{ true };
-        for (u32 i{ 0 }; i < _countof(_windows); ++i)
+        for (u32 i{ 0 }; i < _countof(_surfaces); ++i)
         {
-            if (_windows[i].IsClosed()) continue;
+            if (_surfaces[i].window.IsClosed()) continue;
 
             all_closed = false;
         }
@@ -41,17 +43,20 @@ LRESULT win_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 
 bool TestRenderer::Initialize()
 {
+    bool result{ Renderer::Initialize(Renderer::GRAPHICS_PLATFORM::direct3d12) };
+    if (!result) return result;
+
     Platform::WindowInitInfo info[]
     {
-        {&win_proc, nullptr, L"Test window 1", /*100 - 2000*/1920 / 2 - 400 / 2, /*100 - 700 */ 1080 / 2 - 800 / 2, 400, 800},
-        {&win_proc, nullptr, L"Test window 2", /*150 - 2000*/1920 / 2 - 800 / 2, /*150 - 700 */ 1080 / 2 - 400 / 2, 800, 400},
-        {&win_proc, nullptr, L"Test window 3", /*200 - 2000*/1920 / 2 - 400 / 2, /*200 - 700 */ 1080 / 2 - 400 / 2, 400, 400},
-        {&win_proc, nullptr, L"Test window 4", /*250 - 2000*/1920 / 2 - 800 / 2, /*250 - 700 */ 1080 / 2 - 600 / 2, 800, 600},
+        {&win_proc, nullptr, L"Renderer window 1", 1920 / 2 - 400 / 2, 1080 / 2 - 800 / 2, 400, 800},
+        {&win_proc, nullptr, L"Renderer window 2", 1920 / 2 - 800 / 2, 1080 / 2 - 400 / 2, 800, 400},
+        {&win_proc, nullptr, L"Renderer window 3", 1920 / 2 - 400 / 2, 1080 / 2 - 400 / 2, 400, 400},
+        {&win_proc, nullptr, L"Renderer window 4", 1920 / 2 - 800 / 2, 1080 / 2 - 600 / 2, 800, 600},
     };
-    static_assert(_countof(info) == _countof(_windows));
+    static_assert(_countof(info) == _countof(_surfaces));
 
-    for (u32 i{ 0 }; i < _countof(_windows); ++i) {
-        _windows[i] = Platform::GenerateWindow(&info[i]);
+    for (u32 i{ 0 }; i < _countof(_surfaces); ++i) {
+        _surfaces[i].window = Platform::GenerateWindow(&info[i]);
     }
 
     return true;
@@ -64,8 +69,10 @@ void TestRenderer::Run()
 
 void TestRenderer::Shutdown()
 {
-    for (u32 i{ 0 }; i < _countof(_windows); ++i)
+    for (auto& surface : _surfaces)
     {
-        Platform::RemoveWindow(_windows[i].GetId());
+        Platform::RemoveWindow(surface.window.GetId());
     }
+
+    Renderer::Shutdown();
 }
