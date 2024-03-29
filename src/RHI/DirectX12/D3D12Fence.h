@@ -14,6 +14,8 @@ namespace RHI::D3D12::Parts {
     public:
 #pragma region Getter
         ID3D12Fence1* const GetFence() const { return fence_.Get(); }
+        constexpr u64 GetValue() const { return value_; }
+        constexpr u32 GetIndex() const { return index_; }
 #pragma endregion//Getter
     private:
         ComPtr<ID3D12Fence1> fence_{ nullptr };

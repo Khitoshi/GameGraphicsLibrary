@@ -21,5 +21,5 @@ namespace Renderer {
 
     bool Initialize(GRAPHICS_PLATFORM platform);
     void Shutdown();
-
+    void Render();
 }

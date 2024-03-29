@@ -3,7 +3,7 @@
 #include "D3D12CommandList.h"
 #include "D3D12CommandAllocator.h"
 #include "D3D12Fence.h"
-
+#include "D3D12DescriptorHeap.h"
 #include "D3D12Device.h"
 
 using namespace RHI::D3D12::Parts;
@@ -18,6 +18,8 @@ namespace RHI::D3D12::Core {
         shared_ptr<D3D12CommandList> gfx_command_list;
         shared_ptr<D3D12CommandAllocator> gfx_command_allocator;
         shared_ptr<D3D12Fence> gfx_fence;
+
+        shared_ptr<DescriptorHeapManager> descriptor_heap_manager;
 
         void BeginFrame()
         {
@@ -39,12 +41,12 @@ namespace RHI::D3D12::Core {
             ID3D12CommandList* const cmd_lists[]{ gfx_command_list->GetCommandList() };
             gfx_command_queue->GetCommandQueue()->ExecuteCommandLists(_countof(cmd_lists), &cmd_lists[0]);
 
-            //u64& fence_value{ fence_value };
 
             gfx_fence->WaitForGPU(gfx_command_queue->GetCommandQueue());
 
             /*
-            ++fence_value;
+            u64& fence_value{ gfx_fence->GetValueAddress() };
+            fence_value++;
             command_frame& frame{ command_frames[frame_index] };
             frame.fence_value_ = fence_value;
             command_queue_->Signal(fence.Get(), fence_value);
@@ -202,6 +204,7 @@ namespace RHI::D3D12::Core {
 
         //DXGIファクトリの作成
         HRESULT hr{ S_OK };
+
         DXCall(hr = CreateDXGIFactory2(dxgi_factory_flags, IID_PPV_ARGS(&dxgi_factory)));
         if (FAILED(hr)) return FailedInit();
 
@@ -224,6 +227,10 @@ namespace RHI::D3D12::Core {
         // フェンスの作成
         gfx_fence = make_shared<D3D12Fence>(main_device->GetDevice());
         if (!gfx_fence) return FailedInit();
+
+        descriptor_heap_manager = make_shared<DescriptorHeapManager>();
+
+
 #ifdef _DEBUG
         {
             ComPtr<ID3D12InfoQueue> info_queue;
@@ -242,16 +249,26 @@ namespace RHI::D3D12::Core {
     void Shutdown()
     {
 
-
         gfx_fence->WaitForGPU(gfx_command_queue->GetCommandQueue());
-        gfx_fence.reset();
+
 
         gfx_command_list.reset();
         gfx_command_allocator.reset();
         gfx_command_queue.reset();
 
 
+        for (u32 i{ 0 }; i < frame_buffer_count; ++i)
+        {
+            descriptor_heap_manager->ProcessDeferredReleases(i);
+        }
+        descriptor_heap_manager->HeapDeferredAllRelease();
+        descriptor_heap_manager->ProcessDeferredReleases(0);
+        descriptor_heap_manager.reset();
+
+        gfx_fence.reset();
+
         // DXGIファクトリーインターフェースの解放
+        dxgi_factory.Reset();
 #ifdef _DEBUG
         {
             // ID3D12InfoQueueインターフェースへのクエリを実行し、取得
@@ -268,19 +285,42 @@ namespace RHI::D3D12::Core {
             ComPtr<ID3D12DebugDevice2> debug_device;
             DXCall(main_device->GetDevice()->QueryInterface(IID_PPV_ARGS(&debug_device)));
             // メインデバイスの解放前に、未解放のリソースに関するデバッグ情報をレポート
+            main_device.reset();
             DXCall(debug_device->ReportLiveDeviceObjects(D3D12_RLDO_SUMMARY | D3D12_RLDO_DETAIL | D3D12_RLDO_IGNORE_INTERNAL));
+            debug_device.Reset();
         }
 #endif // _DEBUG
 
-        main_device.reset();
-        dxgi_factory.Reset();
+        if (main_device)main_device.reset();
+
     }
 
     void Render()
     {
         BeginFrame();
 
+        const u32 frame_idx{ GetCurrentFrameIndex() };
+        if (descriptor_heap_manager->GetDeferredReleasesFlag(frame_idx) != 0)
+        {
+            descriptor_heap_manager->ProcessDeferredReleases(frame_idx);
+        }
 
         EndFrame();
     }
+#pragma region Getter
+    ID3D12Device* const GetDevice()
+    {
+        return main_device->GetDevice();
+    }
+
+    u32 GetCurrentFrameIndex()
+    {
+        return gfx_fence->GetIndex();
+    }
+    Parts::DescriptorHeapManager* GetDescriptorHeapManager()
+    {
+        return descriptor_heap_manager.get();
+    }
+#pragma endregion// Getter
+
 }

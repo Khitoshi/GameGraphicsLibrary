@@ -83,6 +83,7 @@
     <ClCompile Include="src\RHI\DirectX12\D3D12CommandList.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12CommandQueue.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12Core.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12DescriptorHeap.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12Device.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12Fence.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12Interface.cpp" />
@@ -95,6 +96,7 @@
     <ClInclude Include="src\RHI\DirectX12\D3D12CommandQueue.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12CommonHeaders.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12Core.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12DescriptorHeap.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12Device.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12Fence.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12Interface.h" />

@@ -32,5 +32,9 @@ namespace Renderer
     {
         gfx.Shutdown();
     }
+    void Render()
+    {
+        gfx.Render();
+    }
 }
 
