@@ -32,9 +32,42 @@ namespace Renderer
     {
         gfx.Shutdown();
     }
-    void Render()
+
+    Surface CreateSurface(Platform::Window window)
     {
-        gfx.Render();
+        return gfx.surface.Create(window);
     }
+
+    void RemoveSurface(SurfaceID id)
+    {
+        assert(Id::IsValid(id));
+        gfx.surface.Remove(id);
+    }
+
+    void Surface::Resize(u32 width, u32 height) const
+    {
+        assert(is_valid());
+        gfx.surface.Resize(id_, width, height);
+    }
+
+    u32 Surface::Width() const
+    {
+        assert(is_valid());
+        return gfx.surface.Width(id_);
+    }
+
+    u32 Surface::Height() const
+    {
+        assert(is_valid());
+        return gfx.surface.Height(id_);
+    }
+
+    void Surface::Render() const
+    {
+        assert(is_valid());
+        return gfx.surface.Render(id_);
+    }
+
+
 }
 

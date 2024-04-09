@@ -5,6 +5,10 @@
 #include "D3D12Fence.h"
 #include "D3D12DescriptorHeap.h"
 #include "D3D12Device.h"
+#include "D3D12SwapChain.h"
+
+#include "../Platform/Window.h"
+#include "../../Renderer/Renderer.h"
 
 using namespace RHI::D3D12::Parts;
 
@@ -18,19 +22,16 @@ namespace RHI::D3D12::Core {
         shared_ptr<D3D12CommandList> gfx_command_list;
         shared_ptr<D3D12CommandAllocator> gfx_command_allocator;
         shared_ptr<D3D12Fence> gfx_fence;
+        shared_ptr<D3D12SwapChain> gfx_swap_chain;
 
         shared_ptr<DescriptorHeapManager> descriptor_heap_manager;
 
         void BeginFrame()
         {
-            //command_frame& frame{ command_frames[frame_index] };
-            //frame.Wait(fence_event, fence.Get());
-            gfx_fence->WaitForGPU(gfx_command_queue->GetCommandQueue());
+            D3D12CommandAllocator* allocator{ gfx_command_allocator.get() };
+            allocator->Reset();
 
-            gfx_command_allocator->Reset();
-            //DXCall(command_list_->Reset(frame.command_allocator_.Get(), nullptr));
-            gfx_command_list->Reset(gfx_command_allocator->GetCommandAllocator());
-
+            gfx_command_list->Reset(allocator->GetCommandAllocator());
         }
 
         void EndFrame()
@@ -41,18 +42,9 @@ namespace RHI::D3D12::Core {
             ID3D12CommandList* const cmd_lists[]{ gfx_command_list->GetCommandList() };
             gfx_command_queue->GetCommandQueue()->ExecuteCommandLists(_countof(cmd_lists), &cmd_lists[0]);
 
-
             gfx_fence->WaitForGPU(gfx_command_queue->GetCommandQueue());
 
-            /*
-            u64& fence_value{ gfx_fence->GetValueAddress() };
-            fence_value++;
-            command_frame& frame{ command_frames[frame_index] };
-            frame.fence_value_ = fence_value;
-            command_queue_->Signal(fence.Get(), fence_value);
-
-            frame_index = (frame_index + 1) % frame_buffer_count;
-            */
+            gfx_fence->SetIndex((gfx_fence->GetIndex() + 1) % frame_buffer_count);
         }
 
         bool FailedInit()
@@ -61,114 +53,7 @@ namespace RHI::D3D12::Core {
             return false;
         }
 
-        /*
-        void CreateDevice()
-        {
-            //GPUベンダー定義
-            enum class GPU_VENDER {
-                NVIDIA,	//NVIDIA
-                AMD,	//Intel
-                INTEL,	//AMD
-
-                NUM,	//Vender数
-            };
-
-            IDXGIAdapter* adapter_tmp = nullptr;
-            IDXGIAdapter* adapter_vender[(int)GPU_VENDER::NUM] = { nullptr };   //各ベンダーのアダプター
-            IDXGIAdapter* adapter_max_video_memory = nullptr;					//最大ビデオメモリのアダプタ
-            IDXGIAdapter* use_adapter = nullptr;								//最終的に使用するアダプタ
-            SIZE_T video_memory_size = 0;										//最大ビデオメモリのサイズ
-
-            for (int i = 0; dxgi_factory->EnumAdapters(i, &adapter_tmp) != DXGI_ERROR_NOT_FOUND; i++) {
-                //アダプターの情報を取得。
-                DXGI_ADAPTER_DESC desc;
-                adapter_tmp->GetDesc(&desc);
-
-                //最大ビデオメモリのアダプターを保存。
-                //ここで取得したアダプタはAMDやINTEL等のGPUがない場合に使用するアダプタ
-                if (desc.DedicatedVideoMemory > video_memory_size) {
-                    //すでに登録している場合は、解放してから登録。
-                    if (adapter_max_video_memory != nullptr) {
-                        adapter_max_video_memory->Release();
-                    }
-                    adapter_max_video_memory = adapter_tmp;
-                    adapter_max_video_memory->AddRef();
-                    video_memory_size = desc.DedicatedVideoMemory;
-                }
-
-                //ベンダー別にアダプターを保存。
-                //すでに登録している場合は、解放してから登録
-                if (wcsstr(desc.Description, L"NVIDIA") != nullptr) {//NVIDIA
-                    if (adapter_vender[(int)GPU_VENDER::NVIDIA]) {
-                        adapter_vender[(int)GPU_VENDER::NVIDIA]->Release();
-                    }
-                    adapter_vender[(int)GPU_VENDER::NVIDIA] = adapter_tmp;
-                    adapter_vender[(int)GPU_VENDER::NVIDIA]->AddRef();
-                }
-                else if (wcsstr(desc.Description, L"AMD") != nullptr) {//AMD
-                    if (adapter_vender[(int)GPU_VENDER::AMD]) {
-                        adapter_vender[(int)GPU_VENDER::AMD]->Release();
-                    }
-                    adapter_vender[(int)GPU_VENDER::AMD] = adapter_tmp;
-                    adapter_vender[(int)GPU_VENDER::AMD]->AddRef();
-                }
-                else if (wcsstr(desc.Description, L"Intel") != nullptr) {//Intel
-                    if (adapter_vender[(int)GPU_VENDER::INTEL]) {
-                        adapter_vender[(int)GPU_VENDER::INTEL]->Release();
-                    }
-                    adapter_vender[(int)GPU_VENDER::INTEL] = adapter_tmp;
-                    adapter_vender[(int)GPU_VENDER::INTEL]->AddRef();
-                }
-                //アダプターを解放
-                adapter_tmp->Release();
-            }
-
-            //使用するアダプタを決める(現在はNVIDIAが最優先)
-            // NVIDIA > AMD > intel > other
-            if (adapter_vender[(int)GPU_VENDER::NVIDIA] != nullptr)use_adapter = adapter_vender[(int)GPU_VENDER::NVIDIA];
-            else if (adapter_vender[(int)GPU_VENDER::AMD] != nullptr) use_adapter = adapter_vender[(int)GPU_VENDER::AMD];
-            else if (adapter_vender[(int)GPU_VENDER::INTEL] != nullptr)use_adapter = adapter_vender[(int)GPU_VENDER::INTEL];
-            else use_adapter = adapter_max_video_memory;
-
-            //使用している可能性のあるFEATURE_LEVELを列挙
-            const D3D_FEATURE_LEVEL FEATURELEVELS[] = {
-                D3D_FEATURE_LEVEL_12_1,
-                D3D_FEATURE_LEVEL_12_0,
-                D3D_FEATURE_LEVEL_11_1,
-                D3D_FEATURE_LEVEL_11_0,
-            };
-
-            //D3D_FEATURE_LEVELのレベルの高い順にloop
-            //HACK:https://forums.developer.nvidia.com/t/poco-notfoundexception-thrown-in-driver-version-531-18/245285
-            //Poco::NotFoundExceptionの例外スローが発生中，原因はNVIDIAのドライバ
-            for (auto feature_level : FEATURELEVELS) {
-                if (SUCCEEDED(D3D12CreateDevice(
-                    use_adapter,
-                    feature_level,
-                    IID_PPV_ARGS(&main_device)
-                ))) {
-                    break;
-                }
-            }
-
-            //取得した全てのグラフィックカードを解放する
-            //use_adapter->Release();
-            for (auto& adapter : adapter_vender) {
-                if (adapter) {//存在する場合解放
-                    adapter->Release();
-                }
-            }
-
-            //GPU以外でグラフィック能力のあるデバイス解放
-            if (adapter_max_video_memory) {
-                adapter_max_video_memory->Release();
-            }
-
-            //デバイスが取得できなかった場合
-
-
-        }
-        */
+        constexpr DXGI_FORMAT render_target_format{ DXGI_FORMAT_R8G8B8A8_UNORM_SRGB };
     }
 
     bool Initialize()
@@ -251,11 +136,9 @@ namespace RHI::D3D12::Core {
 
         gfx_fence->WaitForGPU(gfx_command_queue->GetCommandQueue());
 
-
         gfx_command_list.reset();
         gfx_command_allocator.reset();
         gfx_command_queue.reset();
-
 
         for (u32 i{ 0 }; i < frame_buffer_count; ++i)
         {
@@ -295,18 +178,69 @@ namespace RHI::D3D12::Core {
 
     }
 
-    void Render()
+    Renderer::Surface CreateSurface(::Platform::Window window)
+    {
+        //gfx_swap_chaines.emplace_back(window);
+        //Renderer::SurfaceID id{ (u32)gfx_swap_chaines.size() - 1 };
+        Renderer::SurfaceID id{ 0 };
+        //gfx_swap_chaines[id].CreateSwapChain(dxgi_factory.Get(), gfx_command_queue->GetCommandQueue(), render_target_format);
+        //return Renderer::Surface{ id };
+        gfx_swap_chain = make_shared<D3D12SwapChain>(window);
+        gfx_swap_chain->CreateSwapChain(dxgi_factory.Get(), gfx_command_queue->GetCommandQueue(), render_target_format);
+        return Renderer::Surface{ id };
+    }
+
+    void RemoveSurface(Renderer::SurfaceID id)
+    {
+        //TODO:複数window対応にする場合はidを使う
+        //gfx_fence->WaitForGPU(gfx_command_queue->GetCommandQueue());
+        //gfx_swap_chaines[id].~D3D12SwapChain();
+        gfx_fence->WaitForGPU(gfx_command_queue->GetCommandQueue());
+        //gfx_swap_chain.~D3D12SwapChain();
+        gfx_swap_chain.reset();
+    }
+
+    void ResizeSurface(Renderer::SurfaceID id, u32, u32)
+    {
+        //gfx_fence->WaitForGPU(gfx_command_queue->GetCommandQueue());
+        //gfx_swap_chaines[id].Resize();
+
+        gfx_fence->WaitForGPU(gfx_command_queue->GetCommandQueue());
+        gfx_swap_chain->Resize();
+    }
+
+    u32 SurfaceWidth(Renderer::SurfaceID id)
+    {
+        //return gfx_swap_chaines[id].Width();
+        return gfx_swap_chain->Width();
+    }
+
+    u32 SurfaceHeight(Renderer::SurfaceID id)
+    {
+        //return gfx_swap_chaines[id].Height();
+        return gfx_swap_chain->Height();
+    }
+
+    void RenderSurface(Renderer::SurfaceID id)
     {
         BeginFrame();
 
+        ID3D12GraphicsCommandList6* cmd_list{ gfx_command_list->GetCommandList() };
+
         const u32 frame_idx{ GetCurrentFrameIndex() };
-        if (descriptor_heap_manager->GetDeferredReleasesFlag(frame_idx) != 0)
-        {
+        if (descriptor_heap_manager->GetDeferredReleasesFlag(frame_idx) != 0) {
             descriptor_heap_manager->ProcessDeferredReleases(frame_idx);
         }
 
+        //const D3D12SwapChain& surface{ gfx_swap_chain };
+        //surface.Present();
+        gfx_swap_chain->Present();
+
         EndFrame();
     }
+
+
+
 #pragma region Getter
     ID3D12Device* const GetDevice()
     {
@@ -320,6 +254,14 @@ namespace RHI::D3D12::Core {
     Parts::DescriptorHeapManager* GetDescriptorHeapManager()
     {
         return descriptor_heap_manager.get();
+    }
+    RHI::D3D12::Parts::D3D12DescriptorHeap& GetRTVHeap()
+    {
+        return descriptor_heap_manager->GetRTVDescriptorHeap();
+    }
+    DXGI_FORMAT GetDefaultRenderTargetFormat()
+    {
+        return render_target_format;
     }
 #pragma endregion// Getter
 

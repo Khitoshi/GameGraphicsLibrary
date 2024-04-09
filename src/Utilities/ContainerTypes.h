@@ -4,7 +4,11 @@
 #include <deque>
 #include <algorithm>
 
+#define USE_STL_VECTOR 1
+
 namespace Container {
+
+#if USE_STL_VECTOR
     template<typename T>
     using vector = std::vector<T>;
 
@@ -19,7 +23,7 @@ namespace Container {
             v.clear();
         }
     }
-
+#endif
     template<typename T>
     using deque = std::deque<T>;
 }

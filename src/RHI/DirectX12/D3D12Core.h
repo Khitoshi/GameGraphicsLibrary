@@ -5,20 +5,37 @@
 // ëOï˚êÈåæ
 namespace RHI::D3D12::Parts {
     class DescriptorHeapManager;
+    class D3D12DescriptorHeap;
 }
 
+namespace Platform {
+    class Window;
+}
+
+namespace Renderer {
+    class Surface;
+    struct SurfaceID;
+}
+
+
 namespace RHI::D3D12::Core {
-
-
     bool Initialize();
     void Shutdown();
-    //void Update();
-    void Render();
+
+    Renderer::Surface CreateSurface(Platform::Window window);
+    void RemoveSurface(Renderer::SurfaceID id);
+    void ResizeSurface(Renderer::SurfaceID id, u32, u32);
+    u32 SurfaceWidth(Renderer::SurfaceID id);
+    u32 SurfaceHeight(Renderer::SurfaceID id);
+    void RenderSurface(Renderer::SurfaceID id);
 
 #pragma region Getter
     ID3D12Device* const GetDevice();
     u32 GetCurrentFrameIndex();
 
     RHI::D3D12::Parts::DescriptorHeapManager* GetDescriptorHeapManager();
+    RHI::D3D12::Parts::D3D12DescriptorHeap& GetRTVHeap();
+    DXGI_FORMAT GetDefaultRenderTargetFormat();
+
 #pragma endregion//Getter
 }

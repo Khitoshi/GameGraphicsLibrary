@@ -12,7 +12,7 @@ namespace Platform {
     {
     public:
         constexpr explicit Window(window_id id) : _id{ id } {}
-        constexpr Window() : _id{ Id::invalid_id } {}
+        constexpr Window() = default;
         constexpr window_id GetId() const { return _id; }
         constexpr bool IsValid() const { return Id::IsValid(_id); }
 

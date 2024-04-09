@@ -87,10 +87,12 @@
     <ClCompile Include="src\RHI\DirectX12\D3D12Device.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12Fence.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12Interface.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12SwapChain.cpp" />
     <ClCompile Include="src\TestRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer\Renderer.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12SwapChain.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12CommandAllocator.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12CommandList.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12CommandQueue.h" />
@@ -109,6 +111,7 @@
     <ClInclude Include="src\Utilities\CommonHeaders.h" />
     <ClInclude Include="src\Utilities\MathTypes.h" />
     <ClInclude Include="src\Utilities\PrimitiveTypes.h" />
+    <ClInclude Include="src\Renderer\Timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
