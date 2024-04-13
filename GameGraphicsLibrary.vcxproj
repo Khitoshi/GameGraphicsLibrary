@@ -83,15 +83,21 @@
     <ClCompile Include="src\RHI\DirectX12\D3D12CommandList.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12CommandQueue.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12Core.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12DepthBuffer.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12DescriptorHeap.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12Device.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12Fence.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12Interface.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12RenderTexture.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12SwapChain.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12Texture.cpp" />
     <ClCompile Include="src\TestRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer\Renderer.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12DepthBuffer.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12Helpers.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12RenderTexture.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12SwapChain.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12CommandAllocator.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12CommandList.h" />
@@ -102,16 +108,19 @@
     <ClInclude Include="src\RHI\DirectX12\D3D12Device.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12Fence.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12Interface.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12Texture.h" />
     <ClInclude Include="src\RHI\RHICommandQueue.h" />
     <ClInclude Include="src\RHI\RHIPlatformInterface.h" />
-    <ClInclude Include="src\Utilities\ContainerTypes.h" />
     <ClInclude Include="src\Platform\Window.h" />
     <ClInclude Include="src\Test.h" />
     <ClInclude Include="src\TestRenderer.h" />
     <ClInclude Include="src\Utilities\CommonHeaders.h" />
+    <ClInclude Include="src\Utilities\FreeList.h" />
     <ClInclude Include="src\Utilities\MathTypes.h" />
     <ClInclude Include="src\Utilities\PrimitiveTypes.h" />
     <ClInclude Include="src\Renderer\Timer.h" />
+    <ClInclude Include="src\Utilities\Utilities.h" />
+    <ClInclude Include="src\Utilities\Vector.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

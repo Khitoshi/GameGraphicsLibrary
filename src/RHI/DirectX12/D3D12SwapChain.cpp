@@ -44,7 +44,7 @@ namespace RHI::D3D12::Parts {
 
         current_bb_index_ = swap_chain_->GetCurrentBackBufferIndex();
 
-        for (u32 i{ 0 }; i < frame_buffer_count; ++i) {
+        for (u32 i{ 0 }; i < buffer_count; ++i) {
             render_target_data_[i].rtv = Core::GetRTVHeap().Allocate();
         }
 
@@ -64,7 +64,7 @@ namespace RHI::D3D12::Parts {
     void D3D12SwapChain::Finalize()
     {
         // create RTVs for back-buffers
-        for (u32 i{ 0 }; i < frame_buffer_count; ++i)
+        for (u32 i{ 0 }; i < buffer_count; ++i)
         {
             RenderTargetData& data{ render_target_data_[i] };
             assert(!data.resource);
@@ -95,11 +95,9 @@ namespace RHI::D3D12::Parts {
 
     void D3D12SwapChain::Release()
     {
-        for (u32 i{ 0 }; i < frame_buffer_count; ++i)
+        for (u32 i{ 0 }; i < buffer_count; ++i)
         {
             RenderTargetData& data{ render_target_data_[i] };
-            //core::release(data.resource);
-
             if (data.resource) {
                 data.resource->Release();
                 data.resource = nullptr;

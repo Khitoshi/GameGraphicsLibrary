@@ -19,6 +19,7 @@ namespace RHI::D3D12 {
 
 namespace RHI::D3D12::Parts {
     constexpr u32 frame_buffer_count{ 3 };
+    constexpr u32 buffer_count{ 3 };
     //using Microsoft::WRL::ComPtr;
 }
 

@@ -1,5 +1,5 @@
 #include "Window.h"
-
+#include "Utilities.h"
 
 namespace Platform {
     namespace {
@@ -14,35 +14,13 @@ namespace Platform {
             bool    is_closed{ false };
         };
 
-        Container::vector<WindowInfo> windows;
-        Container::vector<u32> available_slots;
+        Utility::free_list<WindowInfo> windows;
+        Utility::vector<u32> available_slots;
 
 #pragma region ForwardDeclaration
         WindowInfo& GetFromHandle(window_handle handle);
 
 #pragma endregion //ForwardDeclaration
-
-        u32 AddToWindows(WindowInfo info)
-        {
-            u32 id{ u32_invalid_id };
-            if (available_slots.empty()) {
-                id = (u32)windows.size();
-                windows.emplace_back(info);
-            }
-            else {
-                id = available_slots.back();
-                available_slots.pop_back();
-                assert(id != u32_invalid_id);
-                windows[id] = info;
-            }
-            return id;
-        }
-
-        void RemoveFromWindows(u32 id)
-        {
-            assert(id < windows.size());
-            available_slots.emplace_back(id);
-        }
 
         WindowInfo& GetFromId(window_id id)
         {
@@ -308,7 +286,7 @@ namespace Platform {
         {
             //エラーの誤報を防ぐために一度0クリア
             DEBUG_OP(SetLastError(0));
-            const window_id id{ AddToWindows(info) };
+            const window_id id{ windows.add(info) };
             //USERDATA領域にIDを設定
             SetWindowLongPtr(info.hwnd, GWLP_USERDATA, (LONG_PTR)id);
             //追加バイト領域にコールバック関数を設定
@@ -325,7 +303,8 @@ namespace Platform {
     {
         WindowInfo& info{ GetFromId(id) };
         DestroyWindow(info.hwnd);
-        RemoveFromWindows(id);
+        //RemoveFromWindows(id);
+        windows.remove(id);
     }
 
 }

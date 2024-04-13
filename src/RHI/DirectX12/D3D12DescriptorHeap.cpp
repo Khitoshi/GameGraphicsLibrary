@@ -106,7 +106,7 @@ namespace RHI::D3D12::Parts
         srv_desc_heap_.ProcessDeferredFree(frame_idx);
         uav_desc_heap_.ProcessDeferredFree(frame_idx);
 
-        Container::vector<IUnknown*>& resources{ deferred_releases_[frame_idx] };
+        Utility::vector<IUnknown*>& resources{ deferred_releases_[frame_idx] };
         if (!resources.empty())
         {
             for (auto& resource : resources) {

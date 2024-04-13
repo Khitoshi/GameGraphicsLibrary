@@ -23,7 +23,7 @@ namespace RHI::D3D12::Parts {
             allow_tearing_{ o.allow_tearing_ },
             present_flags_{ o.present_flags_ }
         {
-            for (u32 i{ 0 }; i < frame_buffer_count; ++i)
+            for (u32 i{ 0 }; i < buffer_count; ++i)
             {
                 render_target_data_[i].resource = o.render_target_data_[i].resource;
                 render_target_data_[i].rtv = o.render_target_data_[i].rtv;
@@ -59,7 +59,7 @@ namespace RHI::D3D12::Parts {
         constexpr void Move(D3D12SwapChain& o)
         {
             swap_chain_ = o.swap_chain_;
-            for (u32 i{ 0 }; i < frame_buffer_count; ++i)
+            for (u32 i{ 0 }; i < buffer_count; ++i)
             {
                 render_target_data_[i] = o.render_target_data_[i];
             }
@@ -105,7 +105,7 @@ namespace RHI::D3D12::Parts {
         };
 
         IDXGISwapChain4* swap_chain_{};
-        RenderTargetData render_target_data_[frame_buffer_count]{};
+        RenderTargetData render_target_data_[buffer_count]{};
         ::Platform::Window window_{};
         mutable u32         current_bb_index_{ 0 };
         u32                 allow_tearing_{ 0 };

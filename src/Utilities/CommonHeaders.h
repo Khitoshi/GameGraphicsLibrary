@@ -13,7 +13,6 @@
 
 #include "..\Utilities\MathTypes.h"
 #include "..\Utilities\PrimitiveTypes.h"
-#include "..\Utilities\ContainerTypes.h"
 #include "..\Utilities\Id.h"
 
 #ifndef DISABLE_COPY
@@ -28,12 +27,14 @@
             T& operator=(T&&) = delete;
 #endif
 
+#ifdef _DEBUG
+#define DEBUG_OP(x) x
+#else
+#define DEBUG_OP(x)
+#endif
+
 #ifndef DISABLE_COPY_AND_MOVE
 #define DISABLE_COPY_AND_MOVE(T) DISABLE_COPY(T) DISABLE_MOVE(T)
 #endif
 
-#ifdef _DEBUG
-#define DEBUG_OP(x) x
-#else
-#define DEBUG_OP(x) (void(0))
-#endif
+#include "Id.h"

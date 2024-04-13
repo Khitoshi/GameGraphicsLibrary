@@ -14,6 +14,7 @@ using namespace RHI::D3D12::Parts;
 
 namespace RHI::D3D12::Core {
     namespace {
+        constexpr DXGI_FORMAT render_target_format{ DXGI_FORMAT_R8G8B8A8_UNORM_SRGB };
 
         ComPtr<IDXGIFactory7> dxgi_factory{ nullptr };
 
@@ -25,6 +26,10 @@ namespace RHI::D3D12::Core {
         shared_ptr<D3D12SwapChain> gfx_swap_chain;
 
         shared_ptr<DescriptorHeapManager> descriptor_heap_manager;
+
+        Utility::vector<IUnknown*>  deferred_releases[frame_buffer_count]{};
+        u32                         deferred_releases_flag[frame_buffer_count]{};
+        std::mutex                  deferred_releases_mutex{};
 
         void BeginFrame()
         {
@@ -53,7 +58,31 @@ namespace RHI::D3D12::Core {
             return false;
         }
 
-        constexpr DXGI_FORMAT render_target_format{ DXGI_FORMAT_R8G8B8A8_UNORM_SRGB };
+        void __declspec(noinline) process_deferred_releases(u32 frame_idx)
+        {
+            std::lock_guard lock{ deferred_releases_mutex };
+
+            // NOTE: we clear this flag in the beginning. If we'd clear it at the end
+            //       then it might overwrite some other thread that was trying to set it.
+            //       It's fine if overwriting happens before processing the items.
+            deferred_releases_flag[frame_idx] = 0;
+            descriptor_heap_manager->GetRTVDescriptorHeap().ProcessDeferredFree(frame_idx);
+            descriptor_heap_manager->GetDSVDescriptorHeap().ProcessDeferredFree(frame_idx);
+            descriptor_heap_manager->GetSRVDescriptorHeap().ProcessDeferredFree(frame_idx);
+            descriptor_heap_manager->GetUAVDescriptorHeap().ProcessDeferredFree(frame_idx);
+
+            Utility::vector<IUnknown*>& resources{ deferred_releases[frame_idx] };
+            if (!resources.empty())
+            {
+                for (auto& resource : resources) {
+                    //release(resource);
+                    resource->Release();
+                    resource = nullptr;
+                }
+                resources.clear();
+            }
+        }
+
     }
 
     bool Initialize()
@@ -128,6 +157,16 @@ namespace RHI::D3D12::Core {
 #endif // _DEBUG
 
         return true;
+    }
+
+    namespace Detail {
+        void DeferredRelease(IUnknown* resource)
+        {
+            const u32 frame_idx{ GetCurrentFrameIndex() };
+            std::lock_guard lock{ deferred_releases_mutex };
+            deferred_releases[frame_idx].push_back(resource);
+            SetDeferredReleasesFlag();
+        }
     }
 
     // アプリケーションの終了時に呼び出される、リソースのクリーンアップを行う関数
@@ -244,25 +283,49 @@ namespace RHI::D3D12::Core {
 #pragma region Getter
     ID3D12Device* const GetDevice()
     {
+        assert(main_device);
+        assert(main_device->GetDevice());
         return main_device->GetDevice();
     }
 
     u32 GetCurrentFrameIndex()
     {
+        assert(gfx_fence);
+        assert(gfx_fence->GetIndex());
         return gfx_fence->GetIndex();
     }
     Parts::DescriptorHeapManager* GetDescriptorHeapManager()
     {
+        assert(descriptor_heap_manager.get());
         return descriptor_heap_manager.get();
+    }
+    RHI::D3D12::Parts::D3D12DescriptorHeap& GetSRVHeap()
+    {
+        assert(descriptor_heap_manager.get());
+        return descriptor_heap_manager->GetSRVDescriptorHeap();
     }
     RHI::D3D12::Parts::D3D12DescriptorHeap& GetRTVHeap()
     {
+        assert(descriptor_heap_manager.get());
         return descriptor_heap_manager->GetRTVDescriptorHeap();
+    }
+    RHI::D3D12::Parts::D3D12DescriptorHeap& GetDSVHeap()
+    {
+        assert(descriptor_heap_manager.get());
+        return descriptor_heap_manager->GetDSVDescriptorHeap();
     }
     DXGI_FORMAT GetDefaultRenderTargetFormat()
     {
+        assert(render_target_format);
         return render_target_format;
     }
 #pragma endregion// Getter
+
+#pragma region Setter
+    void SetDeferredReleasesFlag()
+    {
+        deferred_releases_flag[GetCurrentFrameIndex()] = 1;
+    }
+#pragma endregion//Setter
 
 }
