@@ -20,6 +20,7 @@ namespace RHI::D3D12 {
 namespace RHI::D3D12::Parts {
     constexpr u32 frame_buffer_count{ 3 };
     constexpr u32 buffer_count{ 3 };
+    constexpr static DXGI_FORMAT default_back_buffer_format{ DXGI_FORMAT_R8G8B8A8_UNORM_SRGB };
     //using Microsoft::WRL::ComPtr;
 }
 
@@ -68,3 +69,7 @@ if (swprintf_s(full_name, L"%s[%u]", name, n) > 0 ){\
 #define NAME_D3D12_OBJECT(x, name)
 #define NAME_D3D12_OBJECT_INDEXED(x, n, name)
 #endif // _DEBUG
+
+
+
+#include "D3D12Helpers.h"

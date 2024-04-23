@@ -19,8 +19,7 @@ namespace RHI::D3D12::Parts {
         constexpr D3D12DepthBuffer& operator=(D3D12DepthBuffer&& o)
         {
             assert(this != &o);
-            if (this != &o)
-            {
+            if (this != &o) {
                 texture_ = std::move(o.texture_);
                 dsv_ = o.dsv_;
                 o.dsv_ = {};

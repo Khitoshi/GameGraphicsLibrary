@@ -1,6 +1,5 @@
 #pragma once
 #include "D3D12CommonHeaders.h"
-#include "Utilities.h"
 
 namespace RHI::D3D12::Parts {
 

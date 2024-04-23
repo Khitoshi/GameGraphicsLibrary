@@ -6,6 +6,7 @@
 #include "D3D12DescriptorHeap.h"
 #include "D3D12Device.h"
 #include "D3D12SwapChain.h"
+#include "D3D12Shaders.h"
 
 #include "../Platform/Window.h"
 #include "../../Renderer/Renderer.h"
@@ -138,6 +139,8 @@ namespace RHI::D3D12::Core {
         gfx_command_list = make_shared<D3D12CommandList>(main_device->GetDevice(), D3D12_COMMAND_LIST_TYPE_DIRECT, gfx_command_allocator->GetCommandAllocator());
         if (!gfx_command_list) return FailedInit();
 
+        if (!Shaders::Initialize()) return FailedInit();
+
         // ÉtÉFÉìÉXÇÃçÏê¨
         gfx_fence = make_shared<D3D12Fence>(main_device->GetDevice());
         if (!gfx_fence) return FailedInit();
@@ -217,6 +220,7 @@ namespace RHI::D3D12::Core {
 
     }
 
+#pragma region Sureface
     Renderer::Surface CreateSurface(::Platform::Window window)
     {
         //gfx_swap_chaines.emplace_back(window);
@@ -277,21 +281,18 @@ namespace RHI::D3D12::Core {
 
         EndFrame();
     }
-
-
+#pragma endregion//Suerface
 
 #pragma region Getter
-    ID3D12Device* const GetDevice()
+    ID3D12Device8* const GetDevice()
     {
         assert(main_device);
-        assert(main_device->GetDevice());
         return main_device->GetDevice();
     }
 
     u32 GetCurrentFrameIndex()
     {
         assert(gfx_fence);
-        assert(gfx_fence->GetIndex());
         return gfx_fence->GetIndex();
     }
     Parts::DescriptorHeapManager* GetDescriptorHeapManager()
@@ -314,12 +315,7 @@ namespace RHI::D3D12::Core {
         assert(descriptor_heap_manager.get());
         return descriptor_heap_manager->GetDSVDescriptorHeap();
     }
-    DXGI_FORMAT GetDefaultRenderTargetFormat()
-    {
-        assert(render_target_format);
-        return render_target_format;
-    }
-#pragma endregion// Getter
+#pragma endregion//Getter
 
 #pragma region Setter
     void SetDeferredReleasesFlag()
@@ -327,5 +323,4 @@ namespace RHI::D3D12::Core {
         deferred_releases_flag[GetCurrentFrameIndex()] = 1;
     }
 #pragma endregion//Setter
-
 }

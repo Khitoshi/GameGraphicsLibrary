@@ -4,12 +4,9 @@ namespace RHI::D3D12::Parts {
 
     D3D12CommandList::D3D12CommandList(ID3D12Device* const device, const D3D12_COMMAND_LIST_TYPE type, ID3D12CommandAllocator* const cmd_allocator)
     {
-        //device->CreateCommandList(0, type, nullptr, nullptr, IID_PPV_ARGS(&command_list_));
         HRESULT hr{ S_OK };
-
         hr = device->CreateCommandList(0, type, cmd_allocator, nullptr, IID_PPV_ARGS(&command_list_));
         DXCall(hr);
-
         assert(SUCCEEDED(hr));
         DXCall(command_list_->Close());
         NAME_D3D12_OBJECT(command_list_,

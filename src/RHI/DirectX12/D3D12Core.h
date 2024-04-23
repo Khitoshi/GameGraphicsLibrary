@@ -26,26 +26,29 @@ namespace RHI::D3D12::Core {
     bool Initialize();
     void Shutdown();
 
+#pragma region Surface
     Renderer::Surface CreateSurface(Platform::Window window);
     void RemoveSurface(Renderer::SurfaceID id);
     void ResizeSurface(Renderer::SurfaceID id, u32, u32);
     u32 SurfaceWidth(Renderer::SurfaceID id);
     u32 SurfaceHeight(Renderer::SurfaceID id);
     void RenderSurface(Renderer::SurfaceID id);
+#pragma endregion//Surface
+
+
 
 #pragma region Getter
-    ID3D12Device* const GetDevice();
+    ID3D12Device8* const GetDevice();
     u32 GetCurrentFrameIndex();
 
     RHI::D3D12::Parts::DescriptorHeapManager* GetDescriptorHeapManager();
     RHI::D3D12::Parts::D3D12DescriptorHeap& GetSRVHeap();
     RHI::D3D12::Parts::D3D12DescriptorHeap& GetRTVHeap();
     RHI::D3D12::Parts::D3D12DescriptorHeap& GetDSVHeap();
-    DXGI_FORMAT GetDefaultRenderTargetFormat();
 #pragma endregion//Getter
 
 #pragma region Setter
     void SetDeferredReleasesFlag();
-#pragma endregion //Setter
+#pragma endregion//Setter
 
 }

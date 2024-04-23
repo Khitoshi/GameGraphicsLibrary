@@ -1,6 +1,7 @@
 #pragma once
 #include "CommonHeaders.h"
 
+#include "..\Utilities\PrimitiveTypes.h"
 namespace Utility {
 
     // std::vectorに似たベクター・クラスで、基本的な機能を備えています。 
@@ -13,25 +14,18 @@ namespace Utility {
         // デフォルトのコンストラクタ。メモリを割り当てない。
         vector() = default;
 
-        // コンストラクタはベクトルのサイズを変更し、'count' アイテムを初期化
+        // コンストラクタはベクトルのサイズを変更し、
+        // count を初期化
         constexpr explicit vector(u64 count)
         {
             resize(count);
         }
 
-        // コンストラクタはベクトルのサイズを変更し、'value'を使って'count'項目を初期化します。
+        // コンストラクタはベクトルのサイズを変更し、
+        // value を使って count を初期化
         constexpr explicit vector(u64 count, const T& value)
         {
             resize(count, value);
-        }
-
-        template<typename it, typename = std::enable_if_t<std::_Is_iterator_v<it>>>
-        constexpr explicit vector(it first, it last)
-        {
-            for (; first != last; ++first)
-            {
-                emplace_back(*first);
-            }
         }
 
         //コピー・コンストラクタ。別のベクトルをコピーして構築する。
@@ -43,7 +37,7 @@ namespace Utility {
 
         // 移動コンストラクタ。別のベクトルを移動して構築します。 
         // 移動後の元のベクトルは空になる
-        constexpr vector(const vector&& o)
+        constexpr vector(vector&& o)
             : capacity_{ o.capacity_ }, size_{ o.size_ }, data_{ o.data_ }
         {
             o.reset();
@@ -114,7 +108,7 @@ namespace Utility {
         // ベクトルのサイズを変更し、新しい項目をデフォルト値で初期化します
         constexpr void resize(u64 new_size)
         {
-            static_assert(std::is_default_constructible_v<T>,
+            static_assert(std::is_default_constructible<T>::value,
                 "Type must be default-constructible.");
 
             if (new_size > size_) {
@@ -137,7 +131,7 @@ namespace Utility {
         // ベクトルのサイズを変更し、'value'をコピーして新しい項目を初期化する
         constexpr void resize(u64 new_size, const T& value)
         {
-            static_assert(std::is_copy_constructible_v<T>,
+            static_assert(std::is_copy_constructible<T>::value,
                 "Type must be copy-constructible.");
 
             if (new_size > size_) {

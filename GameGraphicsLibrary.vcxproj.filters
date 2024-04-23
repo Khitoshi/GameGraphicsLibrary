@@ -63,6 +63,18 @@
     <ClCompile Include="src\RHI\DirectX12\D3D12RenderTexture.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="src\RHI\DirectX12\D3D12Helpers.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Content\ContentLoader.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ShaderCompilation.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RHI\DirectX12\D3D12Shaders.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Test.h">
@@ -146,5 +158,21 @@
     <ClInclude Include="src\RHI\DirectX12\D3D12RenderTexture.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="src\RHI\DirectX12\D3D12PipelineStateObject.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Content\ContentLoader.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ShaderCompilation.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RHI\DirectX12\D3D12Shaders.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="src\RHI\DirectX12\Shaders\FullScreenTriangle.hlsl" />
+    <FxCompile Include="src\RHI\DirectX12\Shaders\FillColor.hlsl" />
   </ItemGroup>
 </Project>

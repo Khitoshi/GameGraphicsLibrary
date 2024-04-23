@@ -18,6 +18,7 @@ namespace RHI::D3D12
         rhi_platform_interface.surface.Height = Core::SurfaceHeight;
         rhi_platform_interface.surface.Render = Core::RenderSurface;
 
+        rhi_platform_interface.platform = Renderer::GRAPHICS_PLATFORM::direct3d12;
     }
 
 }

@@ -47,7 +47,7 @@ namespace RHI::D3D12::Parts {
 #endif // USE_STL_VECTOR
 
         ~D3D12SwapChain() { Release(); }
-        void CreateSwapChain(IDXGIFactory7* factory, ID3D12CommandQueue* cmd_queue, DXGI_FORMAT format);
+        void CreateSwapChain(IDXGIFactory7* factory, ID3D12CommandQueue* cmd_queue, DXGI_FORMAT format = default_back_buffer_format);
         void Present() const;
         void Resize();
 
@@ -108,6 +108,7 @@ namespace RHI::D3D12::Parts {
         RenderTargetData render_target_data_[buffer_count]{};
         ::Platform::Window window_{};
         mutable u32         current_bb_index_{ 0 };
+        DXGI_FORMAT         format_{ default_back_buffer_format };
         u32                 allow_tearing_{ 0 };
         u32                 present_flags_{ 0 };
         D3D12_VIEWPORT      viewport_{};

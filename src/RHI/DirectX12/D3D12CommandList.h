@@ -16,8 +16,6 @@ namespace RHI::D3D12::Parts {
 #pragma region Getter
         ID3D12GraphicsCommandList6* const GetCommandList() const { return command_list_.Get(); }
 #pragma endregion// Getter
-
-
     private:
         ComPtr<ID3D12GraphicsCommandList6> command_list_{ nullptr };
     };

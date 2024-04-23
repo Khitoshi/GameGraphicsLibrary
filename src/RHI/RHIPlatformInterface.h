@@ -25,6 +25,8 @@ namespace RHI {
             u32(*Height)(SurfaceID);
             void(*Render)(SurfaceID);
         } surface;
+
+        Renderer::GRAPHICS_PLATFORM platform = (Renderer::GRAPHICS_PLATFORM)-1;
     };
 }
 

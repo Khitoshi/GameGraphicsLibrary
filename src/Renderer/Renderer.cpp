@@ -18,9 +18,15 @@ namespace Renderer
             default:
                 return false;
             }
-
+            assert(gfx.platform == platform);
             return true;
         }
+
+        // サポートされているAPIごとに、コンパイルされたエンジンシェーダーファイルの場所を定義
+        constexpr const char* engine_shader_paths[]{
+            ".\\Shaders\\D3D12\\shaders.bin",
+        };
+
     }
 
     bool Initialize(GRAPHICS_PLATFORM platform)
@@ -42,6 +48,16 @@ namespace Renderer
     {
         assert(Id::IsValid(id));
         gfx.surface.Remove(id);
+    }
+
+    const char* GetEngineShadersPath()
+    {
+        return engine_shader_paths[(u32)gfx.platform];
+    }
+
+    const char* GetEngineShadersPath(GRAPHICS_PLATFORM platform)
+    {
+        return engine_shader_paths[(u32)platform];
     }
 
     void Surface::Resize(u32 width, u32 height) const
@@ -67,7 +83,6 @@ namespace Renderer
         assert(is_valid());
         return gfx.surface.Render(id_);
     }
-
 
 }
 

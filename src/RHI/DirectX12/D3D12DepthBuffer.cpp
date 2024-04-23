@@ -8,10 +8,9 @@ namespace RHI::D3D12::Parts {
         assert(info.desc);
         const DXGI_FORMAT dsv_format{ info.desc->Format };
 
-        {
+        {// create texture resouce
             D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc{};
-            if (info.desc->Format == DXGI_FORMAT_D32_FLOAT)
-            {
+            if (info.desc->Format == DXGI_FORMAT_D32_FLOAT) {
                 info.desc->Format = DXGI_FORMAT_R32_TYPELESS;
                 srv_desc.Format = DXGI_FORMAT_R32_FLOAT;
             }
@@ -28,7 +27,7 @@ namespace RHI::D3D12::Parts {
             texture_ = D3D12Texture(info);
         }
 
-        {
+        {// create depth stencil view(dsv)
             D3D12_DEPTH_STENCIL_VIEW_DESC dsv_desc{};
             dsv_desc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
             dsv_desc.Flags = D3D12_DSV_FLAG_NONE;

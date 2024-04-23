@@ -1,5 +1,6 @@
 #include "D3D12DescriptorHeap.h"
 #include "D3D12Core.h"
+
 namespace RHI::D3D12::Parts
 {
     D3D12DescriptorHeap::D3D12DescriptorHeap(const D3D12_DESCRIPTOR_HEAP_TYPE type, const u32 capacity, bool is_shader_visible) :

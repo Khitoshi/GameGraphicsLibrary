@@ -4,6 +4,7 @@
 #include "TestRenderer.h"
 #include "Renderer/Renderer.h"
 #include "../Renderer/Timer.h"
+#include "ShaderCompilation.h"
 
 //Platform::Window _windows[4];
 //Renderer::RenderSurface _surfaces[4];
@@ -71,8 +72,17 @@ void DestroyRenderSurface(Renderer::RenderSurface& surface)
 
 bool TestRenderer::Initialize()
 {
-    bool result{ Renderer::Initialize(Renderer::GRAPHICS_PLATFORM::direct3d12) };
-    if (!result) return result;
+
+    while (!CompileShaders())
+    {
+        // Pop up a message box allowing the user to retry compilation.
+        if (MessageBox(nullptr, L"Failed to compile engine shaders.", L"Shader Compilation Error", MB_RETRYCANCEL) != IDRETRY)
+            return false;
+    }
+    if (!Renderer::Initialize(Renderer::GRAPHICS_PLATFORM::direct3d12)) return false;
+
+    //bool result{ Renderer::Initialize(Renderer::GRAPHICS_PLATFORM::direct3d12) };
+    //if (!result) return result;
 
     Platform::WindowInitInfo info[]
     {

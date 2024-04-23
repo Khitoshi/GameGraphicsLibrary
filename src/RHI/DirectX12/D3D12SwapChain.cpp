@@ -11,7 +11,7 @@ namespace RHI::D3D12::Parts {
         }
     }
 
-    void D3D12SwapChain::CreateSwapChain(IDXGIFactory7* factory, ID3D12CommandQueue* cmd_queue, DXGI_FORMAT format)
+    void D3D12SwapChain::CreateSwapChain(IDXGIFactory7* factory, ID3D12CommandQueue* cmd_queue, DXGI_FORMAT format /*= default_back_buffer_format*/)
     {
         assert(factory && cmd_queue);
         Release();
@@ -19,7 +19,7 @@ namespace RHI::D3D12::Parts {
         if (SUCCEEDED(factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allow_tearing_, sizeof(u32))) && allow_tearing_) {
             present_flags_ = DXGI_PRESENT_ALLOW_TEARING;
         }
-
+        format_ = format;
         DXGI_SWAP_CHAIN_DESC1 desc{};
         desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
         desc.BufferCount = frame_buffer_count;
@@ -41,6 +41,7 @@ namespace RHI::D3D12::Parts {
         DXCall(swap_chain->QueryInterface(IID_PPV_ARGS(&swap_chain_)));
         //core::release(swap_chain);
         swap_chain->Release();
+        swap_chain = nullptr;
 
         current_bb_index_ = swap_chain_->GetCurrentBackBufferIndex();
 
@@ -70,7 +71,7 @@ namespace RHI::D3D12::Parts {
             assert(!data.resource);
             DXCall(swap_chain_->GetBuffer(i, IID_PPV_ARGS(&data.resource)));
             D3D12_RENDER_TARGET_VIEW_DESC desc{};
-            desc.Format = Core::GetDefaultRenderTargetFormat();
+            desc.Format = format_;
             desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
             Core::GetDevice()->CreateRenderTargetView(data.resource, &desc, data.rtv.cpu);
         }

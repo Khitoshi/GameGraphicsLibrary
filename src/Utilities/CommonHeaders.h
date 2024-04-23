@@ -11,10 +11,6 @@
 #include <DirectXMath.h>
 #endif
 
-#include "..\Utilities\MathTypes.h"
-#include "..\Utilities\PrimitiveTypes.h"
-#include "..\Utilities\Id.h"
-
 #ifndef DISABLE_COPY
 #define DISABLE_COPY(T)                     \
             explicit T(const T&) = delete;  \
@@ -37,4 +33,7 @@
 #define DISABLE_COPY_AND_MOVE(T) DISABLE_COPY(T) DISABLE_MOVE(T)
 #endif
 
-#include "Id.h"
+#include "..\Utilities\Utilities.h"
+#include "..\Utilities\MathTypes.h"
+#include "..\Utilities\PrimitiveTypes.h"
+#include "..\Utilities\Id.h"

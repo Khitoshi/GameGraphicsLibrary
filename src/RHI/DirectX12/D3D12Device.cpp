@@ -16,7 +16,7 @@ namespace RHI::D3D12::Parts
         IDXGIAdapter* adapter_tmp = nullptr;
         IDXGIAdapter* adapter_vender[(int)GPU_VENDER::NUM] = { nullptr };   //各ベンダーのアダプター
         IDXGIAdapter* adapter_max_video_memory = nullptr;					//最大ビデオメモリのアダプタ
-        IDXGIAdapter* use_adapter = nullptr;								//最終的に使用するアダプタ
+        ComPtr<IDXGIAdapter> use_adapter = nullptr;							//最終的に使用するアダプタ
         SIZE_T video_memory_size = 0;										//最大ビデオメモリのサイズ
 
         for (int i = 0; dxgi_factory->EnumAdapters(i, &adapter_tmp) != DXGI_ERROR_NOT_FOUND; i++) {
@@ -83,7 +83,7 @@ namespace RHI::D3D12::Parts
         //Poco::NotFoundExceptionの例外スローが発生中，原因はNVIDIAのドライバ
         for (auto feature_level : FEATURELEVELS) {
             if (SUCCEEDED(D3D12CreateDevice(
-                use_adapter,
+                use_adapter.Get(),
                 feature_level,
                 IID_PPV_ARGS(&this->device_)
             ))) {

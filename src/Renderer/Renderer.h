@@ -38,4 +38,17 @@ namespace Renderer {
 
     Surface CreateSurface(Platform::Window window);
     void RemoveSurface(SurfaceID id);
+
+
+#pragma region Getter
+    // コンパイルされたエンジンシェーダーの場所を、実行ファイルのパスから相対的に取得します。 
+    // パスは、現在使用されているグラフィックスAPIのものです。
+    const char* GetEngineShadersPath();
+
+    // 実行ファイルのパスからの相対パスで、指定したプラットフォーム用にコンパイルされたエンジンシェーダーの場所を取得します。 
+    // パスは、現在使用されているグラフィックスAPIのものです。
+    const char* GetEngineShadersPath(GRAPHICS_PLATFORM platform);
+#pragma endregion // Getter
+
+
 }
