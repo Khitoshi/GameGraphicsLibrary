@@ -25,13 +25,18 @@ namespace RHI::D3D12::Shaders
 
             u64 offset{ 0 };
             u32 index{ 0 };
+            //シェーダーのバイトコードを読み込むloop
             while (offset < size && result)
             {
                 assert(index < EngineShader::COUNT);
                 compiled_shader_ptr& shader{ engine_shaders[index] };
                 assert(!shader);
+                // 1. シェーダーのインデックスが有効な範囲内
+                // 2. シェーダーがまだ初期化されていない
+                // をチェック
                 result &= index < EngineShader::COUNT && !shader;
                 if (!result) break;
+
                 shader = reinterpret_cast<const compiled_shader_ptr>(&shaders_blob[offset]);
                 offset += sizeof(u64) + shader->size;
                 ++index;

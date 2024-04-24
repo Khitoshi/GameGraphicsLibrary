@@ -182,6 +182,8 @@ namespace RHI::D3D12::Core {
         gfx_command_allocator.reset();
         gfx_command_queue.reset();
 
+        Shaders::Shutdown();
+
         for (u32 i{ 0 }; i < frame_buffer_count; ++i)
         {
             descriptor_heap_manager->ProcessDeferredReleases(i);
@@ -223,13 +225,9 @@ namespace RHI::D3D12::Core {
 #pragma region Sureface
     Renderer::Surface CreateSurface(::Platform::Window window)
     {
-        //gfx_swap_chaines.emplace_back(window);
-        //Renderer::SurfaceID id{ (u32)gfx_swap_chaines.size() - 1 };
         Renderer::SurfaceID id{ 0 };
-        //gfx_swap_chaines[id].CreateSwapChain(dxgi_factory.Get(), gfx_command_queue->GetCommandQueue(), render_target_format);
-        //return Renderer::Surface{ id };
         gfx_swap_chain = make_shared<D3D12SwapChain>(window);
-        gfx_swap_chain->CreateSwapChain(dxgi_factory.Get(), gfx_command_queue->GetCommandQueue(), render_target_format);
+        gfx_swap_chain->CreateSwapChain(dxgi_factory.Get(), gfx_command_queue->GetCommandQueue());
         return Renderer::Surface{ id };
     }
 

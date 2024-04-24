@@ -2,12 +2,12 @@
 #include "D3D12CommonHeaders.h"
 
 namespace RHI::D3D12::Shaders {
-    //#undef DOMAIN // Windows.hのマクロDOMAINと衝突するのでundefする
+#undef DOMAIN // Windows.hのマクロDOMAINと衝突するのでundefする
     struct ShaderType {
         enum TYPE : u32 {
             VERTEX = 0,
             HULL,
-            DOMAIN2,
+            DOMAIN,
             GEOMETRY,
             PIXEL,
             COMPUTE,

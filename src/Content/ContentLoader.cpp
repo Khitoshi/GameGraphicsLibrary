@@ -9,6 +9,7 @@ namespace Content
 {
     namespace
     {
+        //ファイルを読み込み、データとサイズを取得
         bool ReadFile(std::filesystem::path path, std::unique_ptr<u8[]>& data, u64& size)
         {
             if (!std::filesystem::exists(path)) return false;
@@ -18,8 +19,7 @@ namespace Content
             if (!size) return false;
             data = std::make_unique<u8[]>(size);
             std::ifstream file{ path, std::ios::in | std::ios::binary };
-            if (!file || !file.read((char*)data.get(), size))
-            {
+            if (!file || !file.read((char*)data.get(), size)) {
                 file.close();
                 return false;
             }
@@ -30,6 +30,7 @@ namespace Content
 
     }
 
+    // シェーダーバイナリファイルを読み込む
     bool LoadEngineShaders(std::unique_ptr<u8[]>& shaders, u64& size)
     {
         auto path = Renderer::GetEngineShadersPath();
