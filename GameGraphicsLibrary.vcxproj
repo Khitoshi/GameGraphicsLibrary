@@ -104,6 +104,7 @@
     <ClCompile Include="src\RHI\DirectX12\D3D12Shaders.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12SwapChain.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12Texture.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12Gpass.cpp" />
     <ClCompile Include="src\ShaderCompilation.cpp" />
     <ClCompile Include="src\TestRenderer.cpp" />
   </ItemGroup>
@@ -126,6 +127,7 @@
     <ClInclude Include="src\RHI\DirectX12\D3D12Fence.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12Interface.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12Texture.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12Gpass.h" />
     <ClInclude Include="src\RHI\RHICommandQueue.h" />
     <ClInclude Include="src\RHI\RHIPlatformInterface.h" />
     <ClInclude Include="src\Platform\Window.h" />

@@ -1,6 +1,7 @@
 #pragma once
 #include "D3D12CommonHeaders.h"
 #include "D3D12DescriptorHeap.h"
+
 namespace RHI::D3D12::D3DX {
 
     constexpr struct {
@@ -14,8 +15,138 @@ namespace RHI::D3D12::D3DX {
         };
     } heap_properties;
 
+    constexpr struct {
+        const D3D12_RASTERIZER_DESC NoCull{
+            D3D12_FILL_MODE_SOLID,                          // FillMode
+            D3D12_CULL_MODE_NONE,                           // CullMode
+            0,                                              // FrontCounterClockwise
+            0,                                              // DepthBias
+            0,                                              // DepthBiasClamp
+            0,                                              // SlopeScaledDepthBias
+            1,                                              // DepthClipEnable
+            1,                                              // MultisampleEnable
+            0,                                              // AntialiasedLineEnable
+            0,                                              // ForcedSampleCount
+            D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF,      // ConservativeRaster
+        };
 
-    //ID3D12RootSignature* CreateRootSignature(const D3D12_ROOT_SIGNATURE_DESC1& desc);
+        const D3D12_RASTERIZER_DESC BackfaceCull{
+            D3D12_FILL_MODE_SOLID,                          // FillMode
+            D3D12_CULL_MODE_BACK,                           // CullMode
+            0,                                              // FrontCounterClockwise
+            0,                                              // DepthBias
+            0,                                              // DepthBiasClamp
+            0,                                              // SlopeScaledDepthBias
+            1,                                              // DepthClipEnable
+            1,                                              // MultisampleEnable
+            0,                                              // AntialiasedLineEnable
+            0,                                              // ForcedSampleCount
+            D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF,      // ConservativeRaster
+        };
+
+        const D3D12_RASTERIZER_DESC FrontfaceCull{
+            D3D12_FILL_MODE_SOLID,                          // FillMode
+            D3D12_CULL_MODE_FRONT,                          // CullMode
+            0,                                              // FrontCounterClockwise
+            0,                                              // DepthBias
+            0,                                              // DepthBiasClamp
+            0,                                              // SlopeScaledDepthBias
+            1,                                              // DepthClipEnable
+            1,                                              // MultisampleEnable
+            0,                                              // AntialiasedLineEnable
+            0,                                              // ForcedSampleCount
+            D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF,      // ConservativeRaster
+        };
+
+        const D3D12_RASTERIZER_DESC WireFrame{
+            D3D12_FILL_MODE_WIREFRAME,                      // FillMode
+            D3D12_CULL_MODE_NONE,                           // CullMode
+            0,                                              // FrontCounterClockwise
+            0,                                              // DepthBias
+            0,                                              // DepthBiasClamp
+            0,                                              // SlopeScaledDepthBias
+            1,                                              // DepthClipEnable
+            1,                                              // MultisampleEnable
+            0,                                              // AntialiasedLineEnable
+            0,                                              // ForcedSampleCount
+            D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF,      // ConservativeRaster
+        };
+    } rasterizer_state;
+
+    constexpr struct {
+        const D3D12_DEPTH_STENCIL_DESC1 Disabled{
+            0,                                              //DepthEnable
+            D3D12_DEPTH_WRITE_MASK_ZERO,                    //DepthWriteMask
+            D3D12_COMPARISON_FUNC_LESS_EQUAL,               //DepthFunc
+            0,                                              //StencilEnable
+            0,                                              //StencilReadMask
+            0,                                              //StencilWriteMask
+            {},                                             //FrontFace
+            {},                                             //BackFace
+            0                                               //DepthBoundsTestEnable
+        };
+    } depth_state;
+
+    class ResourceBarrier
+    {
+    public:
+        constexpr static u32 MAX_RESOURCE_BARRIERS{ 32 };
+        // BARRIERリストにトランジションを追加
+        constexpr void Add(ID3D12Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after, D3D12_RESOURCE_BARRIER_FLAGS flags = D3D12_RESOURCE_BARRIER_FLAG_NONE, u32 subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES)
+        {
+            assert(resource);
+            assert(offset_ < MAX_RESOURCE_BARRIERS);
+            D3D12_RESOURCE_BARRIER& barrier{ barriers_[offset_] };
+            barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+            barrier.Flags = flags;
+            barrier.Transition.pResource = resource;
+            barrier.Transition.StateBefore = before;
+            barrier.Transition.StateAfter = after;
+            barrier.Transition.Subresource = subresource;
+
+            ++offset_;
+        }
+
+        // BARRIERリストにUAVを追加
+        constexpr void Add(ID3D12Resource* resource, D3D12_RESOURCE_BARRIER_FLAGS flags = D3D12_RESOURCE_BARRIER_FLAG_NONE)
+        {
+            assert(resource);
+            assert(offset_ < MAX_RESOURCE_BARRIERS);
+            D3D12_RESOURCE_BARRIER& barrier{ barriers_[offset_] };
+            barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+            barrier.Flags = flags;
+            barrier.UAV.pResource = resource;
+
+            ++offset_;
+        }
+
+        // エイリアシングをBARRIERリストに追加
+        constexpr void Add(ID3D12Resource* resource_before, ID3D12Resource* resource_after, D3D12_RESOURCE_BARRIER_FLAGS flags = D3D12_RESOURCE_BARRIER_FLAG_NONE)
+        {
+            assert(resource_before && resource_after);
+            assert(offset_ < MAX_RESOURCE_BARRIERS);
+            D3D12_RESOURCE_BARRIER& barrier{ barriers_[offset_] };
+            barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_ALIASING;
+            barrier.Flags = flags;
+            barrier.Aliasing.pResourceBefore = resource_before;
+            barrier.Aliasing.pResourceAfter = resource_after;
+
+            ++offset_;
+        }
+
+        void Apply(ID3D12GraphicsCommandList6* cmd_list)
+        {
+            assert(offset_);
+            cmd_list->ResourceBarrier(offset_, barriers_);
+            offset_ = 0;
+        }
+    private:
+        D3D12_RESOURCE_BARRIER  barriers_[MAX_RESOURCE_BARRIERS]{};
+        u32                     offset_{ 0 };
+    };
+
+    void TransitionResource(ID3D12GraphicsCommandList6* cmd_list, ID3D12Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after, D3D12_RESOURCE_BARRIER_FLAGS flags = D3D12_RESOURCE_BARRIER_FLAG_NONE, u32 subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
+
     ID3D12RootSignature* CreateRootSignature(const D3D12_ROOT_SIGNATURE_DESC1& desc);
 
     struct D3D12DescriptorRange : public D3D12_DESCRIPTOR_RANGE1

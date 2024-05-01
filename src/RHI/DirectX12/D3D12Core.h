@@ -5,7 +5,11 @@
 // ‘O•ûéŒ¾
 namespace RHI::D3D12::Parts {
     class DescriptorHeapManager;
-    class D3D12DescriptorHeap;
+    struct FrameInfo
+    {
+        u32 SurfaceWidth{};
+        u32 SurfaceHeight{};
+    };
 }
 
 namespace Platform {

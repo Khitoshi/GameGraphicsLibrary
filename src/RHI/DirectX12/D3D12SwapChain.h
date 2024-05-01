@@ -93,6 +93,11 @@ namespace RHI::D3D12::Parts {
 #pragma region Getter
         constexpr u32 Width() const { return (u32)viewport_.Width; }
         constexpr u32 Height() const { return (u32)viewport_.Height; }
+        constexpr const D3D12_VIEWPORT& Viewport() const { return viewport_; }
+        constexpr const D3D12_RECT& ScissorRect() const { return scissor_rect_; }
+
+        ID3D12Resource* CurrentBackBuffer() const { return render_target_data_[current_bb_index_].resource; }
+
 #pragma endregion //Getter
 
 

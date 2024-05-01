@@ -142,7 +142,7 @@ namespace {
 
     private:
 
-        const char* profile_strings_[ShaderType::COUNT]
+        constexpr static const char* profile_strings_[ShaderType::COUNT]
         {
             "vs_6_5",
             "hs_6_5",
@@ -164,7 +164,7 @@ namespace {
     //decltype(auto) は、戻り値の型をコンパイラを推測させ、使用する
     decltype(auto) GetEngineShadersPath()
     {
-        return std::filesystem::absolute(Renderer::GetEngineShadersPath(Renderer::GRAPHICS_PLATFORM::direct3d12));
+        return std::filesystem::path{ Renderer::GetEngineShadersPath(Renderer::GRAPHICS_PLATFORM::direct3d12) };
     }
 
     // コンパイルされたシェーダーが最新であるかどうかをチェック
@@ -187,7 +187,7 @@ namespace {
             // ソースファイルの最終更新日時とコンパイル日時を比較
             path = shaders_source_path;
             path += info.file;
-            full_path = std::filesystem::absolute(path);
+            full_path = path;
             if (!std::filesystem::exists(full_path)) return false;
             auto shader_file_time = std::filesystem::last_write_time(full_path);
             if (shader_file_time > shaders_compilation_time)return false;
@@ -238,12 +238,12 @@ bool CompileShaders()
         auto& info = shader_files[i];
         path = shaders_source_path;
         path += info.file;
-        full_path = std::filesystem::absolute(path);
+        full_path = path;
         if (!std::filesystem::exists(full_path)) return false;
 
         // シェーダーをコンパイル
         ComPtr<IDxcBlob> compiled_shader{ compiler.Compile(info, full_path) };
-        if (compiled_shader->GetBufferPointer() && compiled_shader->GetBufferSize())shaders.emplace_back(std::move(compiled_shader));
+        if (compiled_shader && compiled_shader->GetBufferPointer() && compiled_shader->GetBufferSize())shaders.emplace_back(std::move(compiled_shader));
         else return false;
     }
 

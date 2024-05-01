@@ -7,6 +7,7 @@
 #include "D3D12Device.h"
 #include "D3D12SwapChain.h"
 #include "D3D12Shaders.h"
+#include "D3D12Gpass.h"
 
 #include "../Platform/Window.h"
 #include "../../Renderer/Renderer.h"
@@ -25,6 +26,7 @@ namespace RHI::D3D12::Core {
         shared_ptr<D3D12CommandAllocator> gfx_command_allocator;
         shared_ptr<D3D12Fence> gfx_fence;
         shared_ptr<D3D12SwapChain> gfx_swap_chain;
+        D3DX::ResourceBarrier    resource_barriers{};
 
         shared_ptr<DescriptorHeapManager> descriptor_heap_manager;
 
@@ -48,8 +50,9 @@ namespace RHI::D3D12::Core {
             ID3D12CommandList* const cmd_lists[]{ gfx_command_list->GetCommandList() };
             gfx_command_queue->GetCommandQueue()->ExecuteCommandLists(_countof(cmd_lists), &cmd_lists[0]);
 
-            gfx_fence->WaitForGPU(gfx_command_queue->GetCommandQueue());
+            gfx_swap_chain->Present();
 
+            gfx_fence->WaitForGPU(gfx_command_queue->GetCommandQueue());
             gfx_fence->SetIndex((gfx_fence->GetIndex() + 1) % frame_buffer_count);
         }
 
@@ -139,13 +142,19 @@ namespace RHI::D3D12::Core {
         gfx_command_list = make_shared<D3D12CommandList>(main_device->GetDevice(), D3D12_COMMAND_LIST_TYPE_DIRECT, gfx_command_allocator->GetCommandAllocator());
         if (!gfx_command_list) return FailedInit();
 
-        if (!Shaders::Initialize()) return FailedInit();
-
         // フェンスの作成
         gfx_fence = make_shared<D3D12Fence>(main_device->GetDevice());
         if (!gfx_fence) return FailedInit();
 
+        // ディスクリプタヒープマネージャの作成
         descriptor_heap_manager = make_shared<DescriptorHeapManager>();
+
+        // シェーダの初期化
+        if (!Shaders::Initialize()) return FailedInit();
+        // Gpassの初期化
+        if (!RHI::D3D12::GPASS::Initialize()) return FailedInit();
+
+
 
 
 #ifdef _DEBUG
@@ -181,7 +190,10 @@ namespace RHI::D3D12::Core {
         gfx_command_list.reset();
         gfx_command_allocator.reset();
         gfx_command_queue.reset();
-
+        //TODO: ウィンドウを閉じるとエラーが出力される
+        //原因は、Fenceがnullptrになっているため
+        //
+        RHI::D3D12::GPASS::Shutdown();
         Shaders::Shutdown();
 
         for (u32 i{ 0 }; i < frame_buffer_count; ++i)
@@ -275,7 +287,48 @@ namespace RHI::D3D12::Core {
 
         //const D3D12SwapChain& surface{ gfx_swap_chain };
         //surface.Present();
-        gfx_swap_chain->Present();
+
+        ID3D12Resource* const current_back_buffer{ gfx_swap_chain->CurrentBackBuffer() };
+
+        Parts::FrameInfo frame_info{
+            gfx_swap_chain->Width(),
+            gfx_swap_chain->Height()
+        };
+
+        GPASS::SetSize({ frame_info.SurfaceWidth, frame_info.SurfaceHeight });
+        D3DX::ResourceBarrier& barriers{ resource_barriers };
+
+        {
+            // Record commands
+            cmd_list->RSSetViewports(1, &gfx_swap_chain->Viewport());
+            cmd_list->RSSetScissorRects(1, &gfx_swap_chain->ScissorRect());
+
+            // Depth prepass
+            GPASS::AddTransitionsForDepthPrepass(barriers);
+            barriers.Apply(cmd_list);
+            GPASS::SetRenderTargetsForDepthPrepass(cmd_list);
+            GPASS::DepthPrepass(cmd_list, frame_info);
+
+            // Geometry and lighting pass
+            GPASS::AddTransitionsForGpass(barriers);
+            barriers.Apply(cmd_list);
+            GPASS::SetRenderTargetsForGpass(cmd_list);
+            GPASS::Render(cmd_list, frame_info);
+
+            D3DX::TransitionResource(cmd_list, current_back_buffer,
+                D3D12_RESOURCE_STATE_PRESENT,
+                D3D12_RESOURCE_STATE_RENDER_TARGET);
+            // Post-process
+            GPASS::AddTransitionsForPostProcess(barriers);
+            barriers.Apply(cmd_list);
+            // Will write to the current back buffer, so back buffer is a render target
+
+            // after post process
+            D3DX::TransitionResource(cmd_list, current_back_buffer,
+                D3D12_RESOURCE_STATE_RENDER_TARGET,
+                D3D12_RESOURCE_STATE_PRESENT);
+
+        }
 
         EndFrame();
     }
@@ -295,22 +348,22 @@ namespace RHI::D3D12::Core {
     }
     Parts::DescriptorHeapManager* GetDescriptorHeapManager()
     {
-        assert(descriptor_heap_manager.get());
+        //assert(descriptor_heap_manager.get());
         return descriptor_heap_manager.get();
     }
     RHI::D3D12::Parts::D3D12DescriptorHeap& GetSRVHeap()
     {
-        assert(descriptor_heap_manager.get());
+        //assert(descriptor_heap_manager.get());
         return descriptor_heap_manager->GetSRVDescriptorHeap();
     }
     RHI::D3D12::Parts::D3D12DescriptorHeap& GetRTVHeap()
     {
-        assert(descriptor_heap_manager.get());
+        //assert(descriptor_heap_manager.get());
         return descriptor_heap_manager->GetRTVDescriptorHeap();
     }
     RHI::D3D12::Parts::D3D12DescriptorHeap& GetDSVHeap()
     {
-        assert(descriptor_heap_manager.get());
+        // assert(descriptor_heap_manager.get());
         return descriptor_heap_manager->GetDSVDescriptorHeap();
     }
 #pragma endregion//Getter
