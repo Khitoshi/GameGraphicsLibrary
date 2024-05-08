@@ -44,12 +44,14 @@ namespace RHI::D3D12::Parts
 
     void D3D12DescriptorHeap::ProcessDeferredFree(u32 frame_idx)
     {
-        std::lock_guard lock{ mutex_ };
+        //std::lock_guard lock{ mutex_ };
         if (deferred_free_indices_[frame_idx].empty()) return;
 
+        //Utility::vector<u32>& indices{  };
         for (auto& index : deferred_free_indices_[frame_idx])
         {
-            free_handles_[size_++] = index;
+            size_--;
+            free_handles_[size_] = index;
         }
         deferred_free_indices_[frame_idx].clear();
     }
@@ -70,8 +72,9 @@ namespace RHI::D3D12::Parts
             handle.gpu.ptr = gpu_start_.ptr + offset;
         }
 
+        handle.index = index;
         DEBUG_OP(handle.container = this);
-        DEBUG_OP(handle.index = index);
+        //DEBUG_OP(handle.index = index);
         return handle;
     }
 
@@ -95,28 +98,33 @@ namespace RHI::D3D12::Parts
 
     void DescriptorHeapManager::ProcessDeferredReleases(u32 frame_idx)
     {
-        std::lock_guard lock{ mutex_ };
+        //std::lock_guard lock{ mutex_ };
+        assert(frame_idx < frame_buffer_count);
 
         // このフラグは最初にクリアする。
         // もし最後にこのフラグをクリアしてしまうと、このフラグをセットしようとしていた他のスレッドを上書きしてしまうかもしれない。 
         // 上書きはアイテムを処理する前に行われれば問題ない。
-        deferred_releases_flag_[frame_idx] = 0;
+        //deferred_releases_flag_[frame_idx] = 0;
 
         rtv_desc_heap_.ProcessDeferredFree(frame_idx);
         dsv_desc_heap_.ProcessDeferredFree(frame_idx);
         srv_desc_heap_.ProcessDeferredFree(frame_idx);
         uav_desc_heap_.ProcessDeferredFree(frame_idx);
 
+        /*
         Utility::vector<IUnknown*>& resources{ deferred_releases_[frame_idx] };
-        if (!resources.empty())
+
+        if (resources.empty()) return;
+
+
+        for (auto index : indices)
         {
-            for (auto& resource : resources) {
-                //release(resource);
-                resource->Release();
-                resource = nullptr;
-            }
-            resources.clear();
+            --size_;
+            _free_handles[_size] = index;
         }
+        indices.clear();
+        */
+
     }
 
     void DescriptorHeapManager::SetDeferredReleasesFlag()

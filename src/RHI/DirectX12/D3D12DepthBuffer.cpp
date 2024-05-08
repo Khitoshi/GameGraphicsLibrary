@@ -44,7 +44,9 @@ namespace RHI::D3D12::Parts {
 
     void D3D12DepthBuffer::Release()
     {
-        Core::GetDSVHeap().Free(dsv_);
+        if (dsv_.IsValid()) {
+            Core::GetDSVHeap().Free(dsv_);
+        }
         texture_.Release();
     }
 

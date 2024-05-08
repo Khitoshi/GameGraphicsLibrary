@@ -100,6 +100,7 @@
     <ClCompile Include="src\RHI\DirectX12\D3D12Fence.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12Helpers.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12Interface.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12PostProcess.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12RenderTexture.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12Shaders.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12SwapChain.cpp" />
@@ -114,6 +115,7 @@
     <ClInclude Include="src\RHI\DirectX12\D3D12DepthBuffer.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12Helpers.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12PipelineStateObject.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12PostProcess.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12RenderTexture.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12Shaders.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12SwapChain.h" />
@@ -147,18 +149,29 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">FillColorPS</EntryPointName>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.5</ShaderModel>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">FillColorPS</EntryPointName>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.5</ShaderModel>
     </FxCompile>
     <FxCompile Include="src\RHI\DirectX12\Shaders\FullScreenTriangle.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">FullScreenTriangleVS</EntryPointName>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.5</ShaderModel>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">FullScreenTriangleVS</EntryPointName>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.5</ShaderModel>
     </FxCompile>
+    <FxCompile Include="src\RHI\DirectX12\Shaders\PostProcess.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PostProcessPS</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.5</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PostProcessPS</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.5</ShaderModel>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\RHI\DirectX12\Shaders\Fractals.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

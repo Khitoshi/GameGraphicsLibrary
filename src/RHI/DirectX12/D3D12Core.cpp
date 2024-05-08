@@ -8,6 +8,7 @@
 #include "D3D12SwapChain.h"
 #include "D3D12Shaders.h"
 #include "D3D12Gpass.h"
+#include "D3D12PostProcess.h"
 
 #include "../Platform/Window.h"
 #include "../../Renderer/Renderer.h"
@@ -16,23 +17,23 @@ using namespace RHI::D3D12::Parts;
 
 namespace RHI::D3D12::Core {
     namespace {
-        constexpr DXGI_FORMAT render_target_format{ DXGI_FORMAT_R8G8B8A8_UNORM_SRGB };
+        constexpr DXGI_FORMAT               render_target_format{ DXGI_FORMAT_R8G8B8A8_UNORM_SRGB };
 
-        ComPtr<IDXGIFactory7> dxgi_factory{ nullptr };
+        ComPtr<IDXGIFactory7>               dxgi_factory{ nullptr };
 
-        shared_ptr<D3D12Device> main_device;
-        shared_ptr<D3D12CommandQueue> gfx_command_queue;
-        shared_ptr<D3D12CommandList> gfx_command_list;
-        shared_ptr<D3D12CommandAllocator> gfx_command_allocator;
-        shared_ptr<D3D12Fence> gfx_fence;
-        shared_ptr<D3D12SwapChain> gfx_swap_chain;
-        D3DX::ResourceBarrier    resource_barriers{};
+        shared_ptr<D3D12Device>             main_device;
+        shared_ptr<D3D12CommandQueue>       gfx_command_queue;
+        shared_ptr<D3D12CommandList>        gfx_command_list;
+        shared_ptr<D3D12CommandAllocator>   gfx_command_allocator;
+        shared_ptr<D3D12Fence>              gfx_fence;
+        shared_ptr<D3D12SwapChain>          gfx_swap_chain;
+        D3DX::ResourceBarrier               resource_barriers{};
 
-        shared_ptr<DescriptorHeapManager> descriptor_heap_manager;
+        shared_ptr<DescriptorHeapManager>   descriptor_heap_manager;
 
-        Utility::vector<IUnknown*>  deferred_releases[frame_buffer_count]{};
-        u32                         deferred_releases_flag[frame_buffer_count]{};
-        std::mutex                  deferred_releases_mutex{};
+        Utility::vector<IUnknown*>          deferred_releases[frame_buffer_count]{};
+        u32                                 deferred_releases_flag[frame_buffer_count]{};
+        std::mutex                          deferred_releases_mutex{};
 
         void BeginFrame()
         {
@@ -66,25 +67,25 @@ namespace RHI::D3D12::Core {
         {
             std::lock_guard lock{ deferred_releases_mutex };
 
-            // NOTE: we clear this flag in the beginning. If we'd clear it at the end
-            //       then it might overwrite some other thread that was trying to set it.
-            //       It's fine if overwriting happens before processing the items.
+            // NOTE: このフラグは最初にクリアする。
+            // もし最後にこのフラグをクリアしてしまうと、このフラグをセットしようとしていた他のスレッドを上書きしてしまうかもしれない。 
+            // 上書きはアイテムを処理する前に行われれば問題ない。
             deferred_releases_flag[frame_idx] = 0;
-            descriptor_heap_manager->GetRTVDescriptorHeap().ProcessDeferredFree(frame_idx);
-            descriptor_heap_manager->GetDSVDescriptorHeap().ProcessDeferredFree(frame_idx);
-            descriptor_heap_manager->GetSRVDescriptorHeap().ProcessDeferredFree(frame_idx);
-            descriptor_heap_manager->GetUAVDescriptorHeap().ProcessDeferredFree(frame_idx);
+
+            if (descriptor_heap_manager != nullptr) {
+                descriptor_heap_manager->ProcessDeferredReleases(frame_idx);
+            }
 
             Utility::vector<IUnknown*>& resources{ deferred_releases[frame_idx] };
-            if (!resources.empty())
-            {
-                for (auto& resource : resources) {
-                    //release(resource);
+            if (resources.empty()) return;
+
+            for (auto& resource : resources) {
+                if (resource != nullptr) {
                     resource->Release();
                     resource = nullptr;
                 }
-                resources.clear();
             }
+            resources.clear();
         }
 
     }
@@ -128,7 +129,7 @@ namespace RHI::D3D12::Core {
 
         //デバイスの作成
         main_device = std::make_shared<D3D12Device>(dxgi_factory.Get());
-        if (main_device == nullptr) return FailedInit();
+        if (!main_device) return FailedInit();
 
         // コマンドキューの作成
         gfx_command_queue = make_shared<D3D12CommandQueue>(main_device->GetDevice(), D3D12_COMMAND_LIST_TYPE_DIRECT);
@@ -148,14 +149,15 @@ namespace RHI::D3D12::Core {
 
         // ディスクリプタヒープマネージャの作成
         descriptor_heap_manager = make_shared<DescriptorHeapManager>();
+        if (!descriptor_heap_manager) return FailedInit();
 
         // シェーダの初期化
         if (!Shaders::Initialize()) return FailedInit();
+
         // Gpassの初期化
-        if (!RHI::D3D12::GPASS::Initialize()) return FailedInit();
+        if (!GPASS::Initialize()) return FailedInit();
 
-
-
+        if (!PostProcess::Initialize()) return FailedInit();
 
 #ifdef _DEBUG
         {
@@ -184,28 +186,27 @@ namespace RHI::D3D12::Core {
     // アプリケーションの終了時に呼び出される、リソースのクリーンアップを行う関数
     void Shutdown()
     {
-
         gfx_fence->WaitForGPU(gfx_command_queue->GetCommandQueue());
+
+        for (u32 i{ 0 }; i < frame_buffer_count; ++i)
+        {
+            process_deferred_releases(i);
+        }
 
         gfx_command_list.reset();
         gfx_command_allocator.reset();
         gfx_command_queue.reset();
-        //TODO: ウィンドウを閉じるとエラーが出力される
-        //原因は、Fenceがnullptrになっているため
-        //
-        RHI::D3D12::GPASS::Shutdown();
-        Shaders::Shutdown();
 
-        for (u32 i{ 0 }; i < frame_buffer_count; ++i)
-        {
-            descriptor_heap_manager->ProcessDeferredReleases(i);
-        }
-        descriptor_heap_manager->HeapDeferredAllRelease();
+        Shaders::Shutdown();
+        RHI::D3D12::GPASS::Shutdown();
+        PostProcess::Shutdown();
+
         descriptor_heap_manager->ProcessDeferredReleases(0);
         descriptor_heap_manager.reset();
 
         gfx_fence.reset();
 
+        process_deferred_releases(0);
         // DXGIファクトリーインターフェースの解放
         dxgi_factory.Reset();
 #ifdef _DEBUG
@@ -255,9 +256,6 @@ namespace RHI::D3D12::Core {
 
     void ResizeSurface(Renderer::SurfaceID id, u32, u32)
     {
-        //gfx_fence->WaitForGPU(gfx_command_queue->GetCommandQueue());
-        //gfx_swap_chaines[id].Resize();
-
         gfx_fence->WaitForGPU(gfx_command_queue->GetCommandQueue());
         gfx_swap_chain->Resize();
     }
@@ -285,9 +283,6 @@ namespace RHI::D3D12::Core {
             descriptor_heap_manager->ProcessDeferredReleases(frame_idx);
         }
 
-        //const D3D12SwapChain& surface{ gfx_swap_chain };
-        //surface.Present();
-
         ID3D12Resource* const current_back_buffer{ gfx_swap_chain->CurrentBackBuffer() };
 
         Parts::FrameInfo frame_info{
@@ -298,37 +293,43 @@ namespace RHI::D3D12::Core {
         GPASS::SetSize({ frame_info.SurfaceWidth, frame_info.SurfaceHeight });
         D3DX::ResourceBarrier& barriers{ resource_barriers };
 
-        {
-            // Record commands
-            cmd_list->RSSetViewports(1, &gfx_swap_chain->Viewport());
-            cmd_list->RSSetScissorRects(1, &gfx_swap_chain->ScissorRect());
+        ID3D12DescriptorHeap* const heaps[]{ descriptor_heap_manager->GetSRVDescriptorHeap().GetDescriptorHeap() };
+        cmd_list->SetDescriptorHeaps(1, &heaps[0]);
 
-            // Depth prepass
-            GPASS::AddTransitionsForDepthPrepass(barriers);
-            barriers.Apply(cmd_list);
-            GPASS::SetRenderTargetsForDepthPrepass(cmd_list);
-            GPASS::DepthPrepass(cmd_list, frame_info);
+        // Record commands
+        cmd_list->RSSetViewports(1, &gfx_swap_chain->Viewport());
+        cmd_list->RSSetScissorRects(1, &gfx_swap_chain->ScissorRect());
 
-            // Geometry and lighting pass
-            GPASS::AddTransitionsForGpass(barriers);
-            barriers.Apply(cmd_list);
-            GPASS::SetRenderTargetsForGpass(cmd_list);
-            GPASS::Render(cmd_list, frame_info);
+        D3DX::TransitionResource(
+            cmd_list,
+            current_back_buffer,
+            D3D12_RESOURCE_STATE_PRESENT,
+            D3D12_RESOURCE_STATE_RENDER_TARGET
+        );
 
-            D3DX::TransitionResource(cmd_list, current_back_buffer,
-                D3D12_RESOURCE_STATE_PRESENT,
-                D3D12_RESOURCE_STATE_RENDER_TARGET);
-            // Post-process
-            GPASS::AddTransitionsForPostProcess(barriers);
-            barriers.Apply(cmd_list);
-            // Will write to the current back buffer, so back buffer is a render target
+        GPASS::AddTransitionsForDepthPrepass(barriers);
+        barriers.Apply(cmd_list);
+        GPASS::SetRenderTargetsForDepthPrepass(cmd_list);
+        GPASS::DepthPrepass(cmd_list, frame_info);
 
-            // after post process
-            D3DX::TransitionResource(cmd_list, current_back_buffer,
-                D3D12_RESOURCE_STATE_RENDER_TARGET,
-                D3D12_RESOURCE_STATE_PRESENT);
 
-        }
+        // Geometry and lighting pass
+        GPASS::AddTransitionsForGpass(barriers);
+        barriers.Apply(cmd_list);
+        GPASS::SetRenderTargetsForGpass(cmd_list);
+        GPASS::Render(cmd_list, frame_info);
+
+
+
+        GPASS::AddTransitionsForPostProcess(barriers);
+        barriers.Apply(cmd_list);
+        PostProcess::PostProcess(cmd_list, gfx_swap_chain->RTV());
+
+        // after post process
+        //barriers.Apply(cmd_list);
+        D3DX::TransitionResource(cmd_list, current_back_buffer,
+            D3D12_RESOURCE_STATE_RENDER_TARGET,
+            D3D12_RESOURCE_STATE_PRESENT);
 
         EndFrame();
     }

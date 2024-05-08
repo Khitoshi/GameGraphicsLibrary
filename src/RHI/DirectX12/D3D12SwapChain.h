@@ -96,6 +96,7 @@ namespace RHI::D3D12::Parts {
         constexpr const D3D12_VIEWPORT& Viewport() const { return viewport_; }
         constexpr const D3D12_RECT& ScissorRect() const { return scissor_rect_; }
 
+        constexpr D3D12_CPU_DESCRIPTOR_HANDLE RTV() const { return render_target_data_[current_bb_index_].rtv.cpu; }
         ID3D12Resource* CurrentBackBuffer() const { return render_target_data_[current_bb_index_].resource; }
 
 #pragma endregion //Getter

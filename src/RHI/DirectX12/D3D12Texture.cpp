@@ -42,8 +42,9 @@ namespace RHI::D3D12::Parts
 
     void D3D12Texture::Release()
     {
-        Core::GetSRVHeap().Free(srv_);
-        Core::Detail::DeferredRelease(resource_);
+        if (srv_.IsValid())Core::GetSRVHeap().Free(srv_);
+        if (resource_ != nullptr)Core::Detail::DeferredRelease(resource_);
+
     }
 
 }

@@ -60,7 +60,24 @@ namespace RHI::D3D12::Parts {
     }
 
     void D3D12SwapChain::Resize()
-    {}
+    {
+        assert(swap_chain_);
+        for (u32 i{ 0 }; i < buffer_count; ++i)
+        {
+            if (render_target_data_[i].resource != nullptr) {
+                render_target_data_[i].resource->Release();
+                render_target_data_[i].resource = nullptr;
+            }
+        }
+
+        const u32 flags{ allow_tearing_ ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0ul };
+        DXCall(swap_chain_->ResizeBuffers(buffer_count, 0, 0, DXGI_FORMAT_UNKNOWN, flags));
+        current_bb_index_ = swap_chain_->GetCurrentBackBufferIndex();
+
+        Finalize();
+
+        DEBUG_OP(OutputDebugString(L"::D3D12 SwapChain Resized.\n"));
+    }
 
     void D3D12SwapChain::Finalize()
     {

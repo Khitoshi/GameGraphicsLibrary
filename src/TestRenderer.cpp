@@ -11,11 +11,17 @@
 Renderer::RenderSurface _surfaces[1];
 
 Time timer{};
+bool resized{ false };
+bool is_restarting{ false };
 
 void DestroyRenderSurface(Renderer::RenderSurface&);
+bool TestInitialize();
+void TestShutdown();
 
 LRESULT win_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
+    bool toggle_fullscreen{ false };
+
     switch (msg)
     {
     case WM_DESTROY:
@@ -31,23 +37,65 @@ LRESULT win_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
                 }
             }
         }
-        if (all_closed) {
+        if (all_closed && !toggle_fullscreen) {
             PostQuitMessage(0);
             return 0;
         }
         break;
     }
-    case WM_SYSCHAR:
-        if (wparam == VK_RETURN && (HIWORD(lparam) & KF_ALTDOWN)) {
-            Platform::Window win{ Platform::window_id{(Id::id_type)GetWindowLongPtr(hwnd, GWLP_USERDATA)} };
-            win.SetFullscreen(!win.IsFullscreen());
-            return 0;
-        }
+    case WM_SIZE:
+    {
+        resized = (wparam != SIZE_MINIMIZED);
         break;
+
+    }
+    case WM_SYSCHAR:
+    {
+        //if (wparam == VK_RETURN && (HIWORD(lparam) & KF_ALTDOWN)) {
+        //    Platform::Window win{ Platform::window_id{(Id::id_type)GetWindowLongPtr(hwnd, GWLP_USERDATA)} };
+        //    win.SetFullscreen(!win.IsFullscreen());
+        //    return 0;
+        //}
+        toggle_fullscreen = (wparam == VK_RETURN && (HIWORD(lparam) & KF_ALTDOWN));
+        break;
+    }
     case WM_KEYDOWN:
+    {
         if (wparam == VK_ESCAPE) {
             PostMessage(hwnd, WM_CLOSE, 0, 0);
             return 0;
+        }
+        else if (wparam == VK_F11) {
+            is_restarting = true;
+            TestShutdown();
+            TestInitialize();
+        }
+    }
+    }
+
+    if ((resized && GetAsyncKeyState(VK_LBUTTON) >= 0) || toggle_fullscreen)
+    {
+        Platform::Window win{ Platform::window_id{(Id::id_type)GetWindowLongPtr(hwnd, GWLP_USERDATA)} };
+        for (u32 i{ 0 }; i < _countof(_surfaces); ++i)
+        {
+            if (win.GetId() == _surfaces[i].window.GetId())
+            {
+                if (toggle_fullscreen)
+                {
+                    win.SetFullscreen(!win.IsFullscreen());
+                    // The default window procedure will play a system notification sound
+                    // when pressing the Alt+Enter keyboard combination if WM_SYSCHAR is
+                    // not handled. By returning 0 we can tell the system that we handled
+                    // this message.
+                    return 0;
+                }
+                else
+                {
+                    _surfaces[i].surface.Resize(win.Width(), win.Height());
+                    resized = false;
+                }
+                break;
+            }
         }
     }
 
@@ -70,7 +118,8 @@ void DestroyRenderSurface(Renderer::RenderSurface& surface)
 }
 
 
-bool TestRenderer::Initialize()
+//bool TestRenderer::Initialize()
+bool TestInitialize()
 {
 
     while (!CompileShaders())
@@ -97,7 +146,23 @@ bool TestRenderer::Initialize()
         CreateRenderSurface(_surfaces[i], info[i]);
     }
 
+    is_restarting = false;
+
     return true;
+}
+
+void TestShutdown()
+{
+    for (auto& surface : _surfaces) {
+        DestroyRenderSurface(surface);
+    }
+
+    Renderer::Shutdown();
+}
+
+bool TestRenderer::Initialize()
+{
+    return TestInitialize();
 }
 
 void TestRenderer::Run()
@@ -117,9 +182,5 @@ void TestRenderer::Run()
 
 void TestRenderer::Shutdown()
 {
-    for (auto& surface : _surfaces) {
-        DestroyRenderSurface(surface);
-    }
-
-    Renderer::Shutdown();
+    TestShutdown();
 }

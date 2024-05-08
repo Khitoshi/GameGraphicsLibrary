@@ -17,6 +17,8 @@ namespace Platform {
         Utility::free_list<WindowInfo> windows;
         Utility::vector<u32> available_slots;
 
+        bool resized{ false };
+
 #pragma region ForwardDeclaration
         WindowInfo& GetFromHandle(window_handle handle);
 
@@ -31,35 +33,35 @@ namespace Platform {
 
         LRESULT CALLBACK InternalWindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
         {
-            WindowInfo* info{ nullptr };
             switch (msg)
             {
+            case WM_NCCREATE:
+            {
+                // Put the window id in the user data field of window's data buffer.
+                DEBUG_OP(SetLastError(0));
+                const window_id id{ windows.add() };
+                windows[id].hwnd = hwnd;
+                SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)id);
+                assert(GetLastError() == 0);
+                break;
+            }
             case WM_DESTROY:
                 GetFromHandle(hwnd).is_closed = true;
                 break;
-            case WM_EXITSIZEMOVE:
-                info = &GetFromHandle(hwnd);
-                break;
+
             case WM_SIZE:
-                if (wparam == SIZE_MAXIMIZED)
-                {
-                    info = &GetFromHandle(hwnd);
-                }
+                resized = (wparam != SIZE_MINIMIZED);
                 break;
-            case WM_SYSCOMMAND:
-                if (wparam == SC_RESTORE)
-                {
-                    info = &GetFromHandle(hwnd);
-                }
-                break;
+
             default:
                 break;
             }
 
-            if (info)
-            {
-                assert(info->hwnd);
-                GetClientRect(info->hwnd, info->is_fullscreen ? &info->fullscreen_area : &info->client_area);
+            if (resized && GetAsyncKeyState(VK_LBUTTON) >= 0) {
+                WindowInfo& info{ GetFromHandle(hwnd) };
+                assert(info.hwnd);
+                GetClientRect(info.hwnd, info.is_fullscreen ? &info.fullscreen_area : &info.client_area);
+                resized = false;
             }
 
             LONG_PTR long_ptr{ GetWindowLongPtr(hwnd, 0) };
@@ -286,14 +288,17 @@ namespace Platform {
         {
             //エラーの誤報を防ぐために一度0クリア
             DEBUG_OP(SetLastError(0));
-            const window_id id{ windows.add(info) };
+            //const window_id id{ windows.add(info) };
             //USERDATA領域にIDを設定
-            SetWindowLongPtr(info.hwnd, GWLP_USERDATA, (LONG_PTR)id);
+            //SetWindowLongPtr(info.hwnd, GWLP_USERDATA, (LONG_PTR)id);
             //追加バイト領域にコールバック関数を設定
             if (callback) SetWindowLongPtr(info.hwnd, 0, (LONG_PTR)callback);
             assert(GetLastError() == 0);
             ShowWindow(info.hwnd, SW_SHOWNORMAL);
             UpdateWindow(info.hwnd);
+            window_id id{ (Id::id_type)GetWindowLongPtr(info.hwnd, GWLP_USERDATA) };
+            windows[id] = info;
+
             return Window{ id };
         }
         return {};

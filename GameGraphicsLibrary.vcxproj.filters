@@ -78,6 +78,9 @@
     <ClCompile Include="src\RHI\DirectX12\D3D12Gpass.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="src\RHI\DirectX12\D3D12PostProcess.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Test.h">
@@ -176,9 +179,16 @@
     <ClInclude Include="src\RHI\DirectX12\D3D12Gpass.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="src\RHI\DirectX12\D3D12PostProcess.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="src\RHI\DirectX12\Shaders\FullScreenTriangle.hlsl" />
     <FxCompile Include="src\RHI\DirectX12\Shaders\FillColor.hlsl" />
+    <FxCompile Include="src\RHI\DirectX12\Shaders\PostProcess.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\RHI\DirectX12\Shaders\Fractals.hlsli" />
   </ItemGroup>
 </Project>

@@ -7,13 +7,23 @@
 namespace RHI::D3D12::GPASS
 {
     namespace {
+        struct GPassRootParamIndices {
+            enum : u32 {
+                ROOT_CONSTANTS,
+
+                COUNT
+            };
+        };
+
+
         constexpr DXGI_FORMAT       main_buffer_format{ DXGI_FORMAT_R16G16B16A16_FLOAT };
         constexpr DXGI_FORMAT       depth_buffer_format{ DXGI_FORMAT_D32_FLOAT };
         constexpr Math::u32v2       initial_dimensions{ 100, 100 };
 
-        Parts::D3D12RenderTexture   gpass_main_buffer{};
-        Parts::D3D12DepthBuffer     gpass_depth_buffer{};
-        Math::u32v2                 dimensions{ initial_dimensions };
+        Parts::D3D12RenderTexture       gpass_main_buffer{};
+        Parts::D3D12DepthBuffer         gpass_depth_buffer{};
+        Math::u32v2                     dimensions{ initial_dimensions };
+        D3D12_RESOURCE_BARRIER_FLAGS    flags{};
 
         ID3D12RootSignature* gpass_root_sig{ nullptr };
         ID3D12PipelineState* gpass_pso{ nullptr };
@@ -71,18 +81,23 @@ namespace RHI::D3D12::GPASS
             NAME_D3D12_OBJECT(gpass_main_buffer.Resource(), L"GPass Main Buffer");
             NAME_D3D12_OBJECT(gpass_depth_buffer.resource(), L"GPass Depth Buffer");
 
+            flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+
             return gpass_main_buffer.Resource() && gpass_depth_buffer.resource();
         }
 
-        bool
-            create_gpass_pso_and_root_signature()
+        bool CreateGpassPSOAndRootSignature()
         {
             assert(!gpass_root_sig && !gpass_pso);
 
             // GPassRootSignature ì¬
-            D3DX::D3D12RootParameter parameters[1]{};
-            parameters[0].AsConstants(1, D3D12_SHADER_VISIBILITY_PIXEL, 1);
-            const D3DX::D3D12RootSignatureDesc root_signature{ &parameters[0], _countof(parameters) };
+            //D3DX::D3D12RootParameter parameters[1]{};
+            //parameters[0].AsConstants(1, D3D12_SHADER_VISIBILITY_PIXEL, 1);
+            //const D3DX::D3D12RootSignatureDesc root_signature{ &parameters[0], _countof(parameters) };
+            using idx = GPassRootParamIndices;
+            D3DX::D3D12RootParameter parameters[idx::COUNT]{};
+            parameters[0].AsConstants(3, D3D12_SHADER_VISIBILITY_PIXEL, 1);
+            const D3DX::D3D12RootSignatureDesc root_signature{ &parameters[0], idx::COUNT };
             gpass_root_sig = root_signature.create();
             assert(gpass_root_sig);
             NAME_D3D12_OBJECT(gpass_root_sig, L"GPass Root Signature");
@@ -114,12 +129,11 @@ namespace RHI::D3D12::GPASS
 
     bool Initialize()
     {
-        return CreateBuffers(initial_dimensions) && create_gpass_pso_and_root_signature();
+        return CreateBuffers(initial_dimensions) && CreateGpassPSOAndRootSignature();
     }
 
     void Shutdown()
     {
-        //TODO:‚È‚º‚©GPass Main Buffer,GPass Depth Buffer‚ª‰ð•ú‚³‚ê‚Ä‚¢‚È‚¢‚Ì‚Å’²¸‚·‚é
         gpass_main_buffer.Release();
         gpass_depth_buffer.Release();
         dimensions = initial_dimensions;
@@ -157,8 +171,16 @@ namespace RHI::D3D12::GPASS
         cmd_list->SetPipelineState(gpass_pso);
 
         static u32 frame{ 0 };
-        ++frame;
-        cmd_list->SetGraphicsRoot32BitConstant(0, frame, 0);
+        //++frame;
+        //cmd_list->SetGraphicsRoot32BitConstant(0, frame, 0);
+        struct {
+            f32 width;
+            f32 height;
+            u32 frame;
+        } constants{ (f32)info.SurfaceWidth, (f32)info.SurfaceHeight, ++frame };
+
+        using idx = GPassRootParamIndices;
+        cmd_list->SetGraphicsRoot32BitConstants(idx::ROOT_CONSTANTS, 3, &constants, 0);
 
         cmd_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         cmd_list->DrawInstanced(3, 1, 0, 0);
@@ -166,6 +188,9 @@ namespace RHI::D3D12::GPASS
 
     void AddTransitionsForDepthPrepass(D3DX::ResourceBarrier& barriers)
     {
+        barriers.Add(gpass_main_buffer.Resource(),
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY);
         barriers.Add(gpass_depth_buffer.resource(),
             D3D12_RESOURCE_STATE_DEPTH_READ | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
             D3D12_RESOURCE_STATE_DEPTH_WRITE);
@@ -175,7 +200,7 @@ namespace RHI::D3D12::GPASS
     {
         barriers.Add(gpass_main_buffer.Resource(),
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            D3D12_RESOURCE_STATE_RENDER_TARGET);
+            D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_FLAG_END_ONLY);
         barriers.Add(gpass_depth_buffer.resource(),
             D3D12_RESOURCE_STATE_DEPTH_WRITE,
             D3D12_RESOURCE_STATE_DEPTH_READ | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
@@ -204,5 +229,16 @@ namespace RHI::D3D12::GPASS
         cmd_list->OMSetRenderTargets(1, &rtv, 0, &dsv);
     }
 
+#pragma region Getter
+    const  Parts::D3D12RenderTexture& MainBuffer()
+    {
+        return gpass_main_buffer;
+    }
+
+    const  Parts::D3D12DepthBuffer& DepthBuffer()
+    {
+        return gpass_depth_buffer;
+    }
+#pragma endregion //Getter
 }
 

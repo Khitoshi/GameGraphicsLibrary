@@ -32,10 +32,15 @@ namespace RHI::D3D12::Parts {
         ~D3D12RenderTexture() { Release(); }
 
         void Release();
-        constexpr u32 MipCount() const { return mip_count_; }
-        constexpr D3D12_CPU_DESCRIPTOR_HANDLE RTV(u32 mip_index) const { assert(mip_index < mip_count_); return rtv_[mip_index].cpu; }
-        constexpr DescriptorHandle SRV() const { return texture_.srv(); }
-        constexpr ID3D12Resource* const Resource() const { return texture_.resource(); }
+
+#pragma region Getter
+        [[nodiscard]] constexpr u32 MipCount() const { return mip_count_; }
+        [[nodiscard]] constexpr D3D12_CPU_DESCRIPTOR_HANDLE RTV(u32 mip_index) const { assert(mip_index < mip_count_); return rtv_[mip_index].cpu; }
+        [[nodiscard]] constexpr DescriptorHandle SRV() const { return texture_.srv(); }
+        [[nodiscard]] constexpr ID3D12Resource* const Resource() const { return texture_.resource(); }
+#pragma endregion //Getter
+
+
     private:
         constexpr void Move(D3D12RenderTexture& o)
         {

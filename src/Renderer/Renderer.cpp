@@ -36,7 +36,7 @@ namespace Renderer
 
     void Shutdown()
     {
-        gfx.Shutdown();
+        if (gfx.platform != (GRAPHICS_PLATFORM)-1) gfx.Shutdown();
     }
 
     Surface CreateSurface(Platform::Window window)

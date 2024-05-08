@@ -42,8 +42,11 @@ namespace RHI::D3D12::Parts {
         ~D3D12Texture() { Release(); }
 
         void Release();
-        constexpr ID3D12Resource* const resource() const { return resource_; }
-        constexpr DescriptorHandle srv() const { return srv_; }
+#pragma region Getter
+        [[nodiscard]] constexpr ID3D12Resource* const resource() const { return resource_; }
+        [[nodiscard]] constexpr DescriptorHandle srv() const { return srv_; }
+#pragma endregion //Getter
+
 
     private:
         constexpr void Move(D3D12Texture& o)

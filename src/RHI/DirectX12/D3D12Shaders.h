@@ -22,6 +22,7 @@ namespace RHI::D3D12::Shaders {
         enum ID : u32 {
             FULLSCREENTRIANGLE_VS = 0,
             FILLCOLOR_PS = 1,
+            POSTPROCESS_PS = 2,
 
             COUNT
         };

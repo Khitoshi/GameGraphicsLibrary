@@ -4,6 +4,8 @@
 
 namespace RHI::D3D12::Parts {
     struct FrameInfo;
+    class D3D12RenderTexture;
+    class D3D12DepthBuffer;
 }
 
 namespace RHI::D3D12::GPASS {
@@ -21,5 +23,11 @@ namespace RHI::D3D12::GPASS {
 
     void SetRenderTargetsForDepthPrepass(ID3D12GraphicsCommandList6* cmd_list);
     void SetRenderTargetsForGpass(ID3D12GraphicsCommandList6* cmd_list);
+
+#pragma region Getter
+    [[nodiscard]] const Parts::D3D12RenderTexture& MainBuffer();
+    [[nodiscard]] const Parts::D3D12DepthBuffer& DepthBuffer();
+#pragma endregion //Getter
+
 
 }
