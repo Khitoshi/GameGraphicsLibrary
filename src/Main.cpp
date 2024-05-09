@@ -2,13 +2,13 @@
 
 #if _DEBUG
 #define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
+//#include <stdlib.h>
 #include <crtdbg.h>
 #endif // _DEBUG
 
 #include <Windows.h>
 #include "TestRenderer.h"
-#include "Platform/Window.h"
+//#include "Platform/Window.h"
 
 #include <filesystem>
 // TODO: duplicate!

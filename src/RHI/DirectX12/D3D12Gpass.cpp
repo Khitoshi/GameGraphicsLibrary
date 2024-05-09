@@ -91,9 +91,6 @@ namespace RHI::D3D12::GPASS
             assert(!gpass_root_sig && !gpass_pso);
 
             // GPassRootSignature ì¬
-            //D3DX::D3D12RootParameter parameters[1]{};
-            //parameters[0].AsConstants(1, D3D12_SHADER_VISIBILITY_PIXEL, 1);
-            //const D3DX::D3D12RootSignatureDesc root_signature{ &parameters[0], _countof(parameters) };
             using idx = GPassRootParamIndices;
             D3DX::D3D12RootParameter parameters[idx::COUNT]{};
             parameters[0].AsConstants(3, D3D12_SHADER_VISIBILITY_PIXEL, 1);
@@ -171,8 +168,6 @@ namespace RHI::D3D12::GPASS
         cmd_list->SetPipelineState(gpass_pso);
 
         static u32 frame{ 0 };
-        //++frame;
-        //cmd_list->SetGraphicsRoot32BitConstant(0, frame, 0);
         struct {
             f32 width;
             f32 height;
@@ -188,19 +183,28 @@ namespace RHI::D3D12::GPASS
 
     void AddTransitionsForDepthPrepass(D3DX::ResourceBarrier& barriers)
     {
-        barriers.Add(gpass_main_buffer.Resource(),
+        barriers.Add(
+            gpass_main_buffer.Resource(),
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY);
-        barriers.Add(gpass_depth_buffer.resource(),
+            D3D12_RESOURCE_STATE_RENDER_TARGET,
+            D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY
+        );
+
+        barriers.Add(
+            gpass_depth_buffer.resource(),
             D3D12_RESOURCE_STATE_DEPTH_READ | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
-            D3D12_RESOURCE_STATE_DEPTH_WRITE);
+            D3D12_RESOURCE_STATE_DEPTH_WRITE
+        );
     }
 
     void AddTransitionsForGpass(D3DX::ResourceBarrier& barriers)
     {
         barriers.Add(gpass_main_buffer.Resource(),
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_FLAG_END_ONLY);
+            D3D12_RESOURCE_STATE_RENDER_TARGET,
+            D3D12_RESOURCE_BARRIER_FLAG_END_ONLY
+        );
+
         barriers.Add(gpass_depth_buffer.resource(),
             D3D12_RESOURCE_STATE_DEPTH_WRITE,
             D3D12_RESOURCE_STATE_DEPTH_READ | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);

@@ -29,6 +29,11 @@ namespace RHI::D3D12::Parts {
     //using Microsoft::WRL::ComPtr;
 }
 
+namespace RHI::D3D12::UPLOAD {
+    constexpr u32       upload_frame_count{ 4 };
+}
+
+
 #ifdef _DEBUG
 #ifndef DXCall
 #define DXCall(x)                           \

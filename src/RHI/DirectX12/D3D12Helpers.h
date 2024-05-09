@@ -2,17 +2,27 @@
 #include "D3D12CommonHeaders.h"
 #include "D3D12DescriptorHeap.h"
 
+//TODO: 汚いのでリファクタリングする
+
 namespace RHI::D3D12::D3DX {
 
     constexpr struct {
-        const D3D12_HEAP_PROPERTIES DefaultHeap
-        {
+        const D3D12_HEAP_PROPERTIES DefaultHeap{
             D3D12_HEAP_TYPE_DEFAULT,            // Type;
             D3D12_CPU_PAGE_PROPERTY_UNKNOWN,    // CPUPageProperty;
             D3D12_MEMORY_POOL_UNKNOWN,          // MemoryPoolPreference;
             0,                                  // CreationNodeMask;
             0                                   // VisibleNodeMask;
         };
+
+        const D3D12_HEAP_PROPERTIES UploadHeap{
+            D3D12_HEAP_TYPE_UPLOAD,             // Type
+            D3D12_CPU_PAGE_PROPERTY_UNKNOWN,    // CPUPageProperty
+            D3D12_MEMORY_POOL_UNKNOWN,          // MemoryPoolPreference
+            0,                                  // CreationNodeMask
+            0                                   // VisibleNodeMask
+        };
+
     } heap_properties;
 
     constexpr struct {
@@ -210,10 +220,12 @@ namespace RHI::D3D12::D3DX {
     // スタティックサンプラー              = 0 DWORD（シェーダーにコンパイルされる
     struct D3D12RootSignatureDesc : public D3D12_ROOT_SIGNATURE_DESC1
     {
-        constexpr explicit D3D12RootSignatureDesc(const D3D12RootParameter* parameters,
+        constexpr explicit D3D12RootSignatureDesc(
+            const D3D12RootParameter* parameters,
             u32 parameter_count,
             const D3D12_STATIC_SAMPLER_DESC* static_samplers = nullptr,
-            u32 sampler_count = 0, D3D12_ROOT_SIGNATURE_FLAGS flags =
+            u32 sampler_count = 0,
+            D3D12_ROOT_SIGNATURE_FLAGS flags =
             D3D12_ROOT_SIGNATURE_FLAG_DENY_VERTEX_SHADER_ROOT_ACCESS |
             D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
             D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
@@ -242,6 +254,8 @@ namespace RHI::D3D12::D3DX {
     };
 
     // Pipeline State Subobject (PSS) macro
+
+#pragma region CreatePSSObject
 #define PSS(name, ...) using D3D12PipelineStateSubobject_##name = D3D12PipelineStateSubobject<__VA_ARGS__>
 
     PSS(RootSignature, D3D12_PIPELINE_STATE_SUBOBJECT_TYPE_ROOT_SIGNATURE, ID3D12RootSignature*);
@@ -272,6 +286,15 @@ namespace RHI::D3D12::D3DX {
 
 #undef PSS
 
+#pragma endregion
+
     ID3D12PipelineState* CreatePipelineState(D3D12_PIPELINE_STATE_STREAM_DESC desc);
     ID3D12PipelineState* CreatePipelineState(void* stream, u64 stream_size);
+    ID3D12Resource* CreateBuffer(
+        const void* data, u32 buffer_size,
+        bool is_cpu_accessible = false,
+        D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON,
+        D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE,
+        ID3D12Heap* heap = nullptr, u64 heap_offset = 0
+    );
 }

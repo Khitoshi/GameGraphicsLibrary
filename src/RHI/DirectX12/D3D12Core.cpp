@@ -9,6 +9,7 @@
 #include "D3D12Shaders.h"
 #include "D3D12Gpass.h"
 #include "D3D12PostProcess.h"
+#include "D3D12Upload.h"
 
 #include "../Platform/Window.h"
 #include "../../Renderer/Renderer.h"
@@ -154,6 +155,8 @@ namespace RHI::D3D12::Core {
         // シェーダの初期化
         if (!Shaders::Initialize()) return FailedInit();
 
+        if (!UPLOAD::Initialize())return FailedInit();
+
         // Gpassの初期化
         if (!GPASS::Initialize()) return FailedInit();
 
@@ -198,6 +201,7 @@ namespace RHI::D3D12::Core {
         gfx_command_queue.reset();
 
         Shaders::Shutdown();
+        UPLOAD::Shutdown();
         RHI::D3D12::GPASS::Shutdown();
         PostProcess::Shutdown();
 
@@ -300,20 +304,25 @@ namespace RHI::D3D12::Core {
         cmd_list->RSSetViewports(1, &gfx_swap_chain->Viewport());
         cmd_list->RSSetScissorRects(1, &gfx_swap_chain->ScissorRect());
 
-        D3DX::TransitionResource(
-            cmd_list,
+
+
+        barriers.Add(
             current_back_buffer,
             D3D12_RESOURCE_STATE_PRESENT,
             D3D12_RESOURCE_STATE_RENDER_TARGET
+            //D3D12_RESOURCE_BARRIER_FLAG_BEGIN_ONLY
         );
 
+
+        // Depth Prepass
         GPASS::AddTransitionsForDepthPrepass(barriers);
         barriers.Apply(cmd_list);
         GPASS::SetRenderTargetsForDepthPrepass(cmd_list);
         GPASS::DepthPrepass(cmd_list, frame_info);
 
 
-        // Geometry and lighting pass
+
+        // Geometry Pass
         GPASS::AddTransitionsForGpass(barriers);
         barriers.Apply(cmd_list);
         GPASS::SetRenderTargetsForGpass(cmd_list);
@@ -321,15 +330,20 @@ namespace RHI::D3D12::Core {
 
 
 
+        //Post Process(最終レンダリングの直前に行う画像処理)
         GPASS::AddTransitionsForPostProcess(barriers);
         barriers.Apply(cmd_list);
         PostProcess::PostProcess(cmd_list, gfx_swap_chain->RTV());
 
-        // after post process
-        //barriers.Apply(cmd_list);
-        D3DX::TransitionResource(cmd_list, current_back_buffer,
+
+
+        D3DX::TransitionResource(
+            cmd_list,
+            current_back_buffer,
             D3D12_RESOURCE_STATE_RENDER_TARGET,
-            D3D12_RESOURCE_STATE_PRESENT);
+            D3D12_RESOURCE_STATE_PRESENT
+        );
+
 
         EndFrame();
     }

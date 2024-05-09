@@ -93,6 +93,7 @@
     <ClCompile Include="src\RHI\DirectX12\D3D12CommandAllocator.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12CommandList.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12CommandQueue.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12Content.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12Core.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12DepthBuffer.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12DescriptorHeap.cpp" />
@@ -106,12 +107,15 @@
     <ClCompile Include="src\RHI\DirectX12\D3D12SwapChain.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12Texture.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12Gpass.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12Upload.cpp" />
     <ClCompile Include="src\ShaderCompilation.cpp" />
     <ClCompile Include="src\TestRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Content\ContentLoader.h" />
+    <ClInclude Include="src\Content\ContentToEngine.h" />
     <ClInclude Include="src\Renderer\Renderer.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12Content.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12DepthBuffer.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12Helpers.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12PipelineStateObject.h" />
@@ -130,6 +134,7 @@
     <ClInclude Include="src\RHI\DirectX12\D3D12Interface.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12Texture.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12Gpass.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12Upload.h" />
     <ClInclude Include="src\RHI\RHICommandQueue.h" />
     <ClInclude Include="src\RHI\RHIPlatformInterface.h" />
     <ClInclude Include="src\Platform\Window.h" />
@@ -138,6 +143,8 @@
     <ClInclude Include="src\TestRenderer.h" />
     <ClInclude Include="src\Utilities\CommonHeaders.h" />
     <ClInclude Include="src\Utilities\FreeList.h" />
+    <ClInclude Include="src\Utilities\IOStream.h" />
+    <ClInclude Include="src\Utilities\UMath.h" />
     <ClInclude Include="src\Utilities\MathTypes.h" />
     <ClInclude Include="src\Utilities\PrimitiveTypes.h" />
     <ClInclude Include="src\Renderer\Timer.h" />

@@ -1,4 +1,5 @@
 #pragma once
+
 #include "CommonHeaders.h"
 
 #if !defined(SHIPPING)

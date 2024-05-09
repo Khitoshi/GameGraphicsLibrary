@@ -1,10 +1,15 @@
 #include "ContentLoader.h"
 #include "../Renderer/Renderer.h"
 
-#include <fstream>
 #include <filesystem>
-#include <Windows.h>
+#include <fstream>
 
+//#include <cassert>
+//#include <iosfwd>
+//#include <memory>
+//#include <PrimitiveTypes.h>
+
+#if !defined(SHIPPING)
 namespace Content
 {
     namespace
@@ -38,3 +43,4 @@ namespace Content
     }
 
 }
+#endif // !defined(SHIPPING)
