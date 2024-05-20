@@ -18,6 +18,11 @@ namespace RHI::D3D12
         rhi_platform_interface.surface.Height = Core::SurfaceHeight;
         rhi_platform_interface.surface.Render = Core::RenderSurface;
 
+        rhi_platform_interface.camera.Create = Camera::Create;
+        rhi_platform_interface.camera.Remove = Camera::Remove;
+        rhi_platform_interface.camera.SetParameter = Camera::SetParameter;
+        rhi_platform_interface.camera.GetParameter = Camera::GetParameter;
+
         rhi_platform_interface.platform = Renderer::GRAPHICS_PLATFORM::direct3d12;
     }
 

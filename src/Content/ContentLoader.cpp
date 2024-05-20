@@ -42,5 +42,11 @@ namespace Content
         return ReadFile(path, shaders, size);
     }
 
+    // モデルファイルを読み込む
+    bool LoadModel()
+    {
+
+    }
+
 }
 #endif // !defined(SHIPPING)

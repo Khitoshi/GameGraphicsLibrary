@@ -5,10 +5,16 @@
 #include "Renderer/Renderer.h"
 #include "../Renderer/Timer.h"
 #include "ShaderCompilation.h"
+#include "../EngineAPI/GameEntity.h"
+#include "../EngineAPI/Camera.h"
+#include "Components/Transform.h"
+#include "Components/Entity.h"
+#include "RHI/DirectX12/D3D12Camera.h"
 
-//Platform::Window _windows[4];
-//Renderer::RenderSurface _surfaces[4];
+
+GameEntity::Entity entity{};
 Renderer::RenderSurface _surfaces[1];
+Graphics::Camera camera{};
 
 Time timer{};
 bool resized{ false };
@@ -102,6 +108,22 @@ LRESULT win_proc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
     return DefWindowProc(hwnd, msg, wparam, lparam);
 }
 
+GameEntity::Entity CreateOneGameEntity()
+{
+    Transform::InitInfo transform_info{};
+    Math::v3a rot{ 0, 3.14f, 0 };
+    DirectX::XMVECTOR quat{ DirectX::XMQuaternionRotationRollPitchYawFromVector(DirectX::XMLoadFloat3A(&rot)) };
+    Math::v4a rot_quat;
+    DirectX::XMStoreFloat4A(&rot_quat, quat);
+    memcpy(&transform_info.rotation[0], &rot_quat.x, sizeof(transform_info.rotation));
+
+    GameEntity::EntityInfo entity_info{};
+    entity_info.transform = &transform_info;
+    GameEntity::Entity ntt{ GameEntity::Create(entity_info) };
+    assert(ntt.IsValid());
+    return ntt;
+}
+
 void CreateRenderSurface(Renderer::RenderSurface& surface, Platform::WindowInitInfo info)
 {
     surface.window = Platform::GenerateWindow(&info);
@@ -148,11 +170,23 @@ bool TestInitialize()
 
     is_restarting = false;
 
+    entity = CreateOneGameEntity();
+    camera = Renderer::CreateCamera(RHI::D3D12::Camera::PerspectiveCameraInitInfo(entity.GetID()));
+    assert(camera.IsValid());
+
     return true;
 }
 
 void TestShutdown()
 {
+    if (camera.IsValid()) {
+        Renderer::RemoveCamera(camera.GetID());
+    }
+
+    if (entity.IsValid()) {
+        GameEntity::Remove(entity.GetID());
+    }
+
     for (auto& surface : _surfaces) {
         DestroyRenderSurface(surface);
     }
@@ -171,8 +205,7 @@ void TestRenderer::Run()
 
     for (u32 i{ 0 }; i < _countof(_surfaces); ++i)
     {
-        if (_surfaces[i].surface.is_valid())
-        {
+        if (_surfaces[i].surface.is_valid()) {
             _surfaces[i].surface.Render();
         }
     }
@@ -184,3 +217,7 @@ void TestRenderer::Shutdown()
 {
     TestShutdown();
 }
+
+
+
+//TODO: assetフォルダーを作成し、fbxファイルを格納そして、fbxファイルを全て読み込む処理を作成する shaderの読み込みを参考にして

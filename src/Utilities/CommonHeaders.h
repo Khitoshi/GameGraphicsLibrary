@@ -33,11 +33,7 @@
 #define DISABLE_COPY_AND_MOVE(T) DISABLE_COPY(T) DISABLE_MOVE(T)
 #endif
 
-//#include "PrimitiveTypes.h"
-//#include "..\Utilities\Math.h"
 #include "UMath.h"
-//#include "..\Utilities\Utilities.h"
 #include "Utilities.h"
-//#include "..\Utilities\MathTypes.h"
 #include "MathTypes.h"
 #include "Id.h"

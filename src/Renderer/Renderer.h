@@ -3,6 +3,21 @@
 #include "CommonHeaders.h"
 #include "..\Platform\Window.h"
 
+namespace RHI {
+    struct RHIPlatformInterface;
+
+    namespace D3D12::Camera {
+        struct CameraInitInfo;
+    }
+}
+
+namespace Graphics
+{
+    struct CameraID;
+    class Camera;
+}
+
+
 namespace Renderer {
 
     DEFINE_TYPED_ID(SurfaceID);
@@ -39,6 +54,8 @@ namespace Renderer {
     Surface CreateSurface(Platform::Window window);
     void RemoveSurface(SurfaceID id);
 
+    ::Graphics::Camera CreateCamera(::RHI::D3D12::Camera::CameraInitInfo info);
+    void RemoveCamera(::Graphics::CameraID id);
 
 #pragma region Getter
     // コンパイルされたエンジンシェーダーの場所を、実行ファイルのパスから相対的に取得します。 
@@ -48,7 +65,10 @@ namespace Renderer {
     // 実行ファイルのパスからの相対パスで、指定したプラットフォーム用にコンパイルされたエンジンシェーダーの場所を取得します。 
     // パスは、現在使用されているグラフィックスAPIのものです。
     const char* GetEngineShadersPath(GRAPHICS_PLATFORM platform);
-#pragma endregion // Getter
 
+    const char* GetEngineModelsPath();
+
+    const RHI::RHIPlatformInterface* GetPlatformInterface();
+#pragma endregion // Getter
 
 }

@@ -2,8 +2,16 @@
 
 #include "CommonHeaders.h"
 #include "PrimitiveTypes.h"
+#include "MathTypes.h"
 
 namespace Math {
+
+    constexpr bool IsEqual(f32 a, f32 b, f32 eps = epsilon)
+    {
+        f32 diff{ a - b };
+        if (diff < 0.f) diff = -diff;
+        return diff < eps;
+    }
 
     template<typename T>
     constexpr T Clamp(T value, T min, T max)
@@ -35,7 +43,7 @@ namespace Math {
         assert(min < max);
         assert(f <= max && f >= min);
         const f32 distance{ (f - min) / (max - min) };
-        return pack_unit_float<bits>(distance);
+        return PackUnitFloat<bits>(distance);
     }
 
     template<u32 bits>

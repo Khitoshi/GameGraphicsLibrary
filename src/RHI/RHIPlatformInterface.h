@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../Platform/Window.h"
+#include "CommonHeaders.h"
 #include "../Renderer/Renderer.h"
+#include "../RHI/DirectX12/D3D12Camera.h"
 
 namespace RHI {
 
@@ -15,7 +16,6 @@ namespace RHI {
     {
         bool(*Initialize)(void);
         void(*Shutdown)(void);
-        //void(*Render)(void);
 
         struct {
             Surface(*Create)(::Platform::Window);
@@ -25,6 +25,13 @@ namespace RHI {
             u32(*Height)(SurfaceID);
             void(*Render)(SurfaceID);
         } surface;
+
+        struct {
+            ::Graphics::Camera(*Create)(RHI::D3D12::Camera::CameraInitInfo);
+            void(*Remove)(Graphics::CameraID);
+            void(*SetParameter)(Graphics::CameraID, RHI::D3D12::Camera::CameraParameter::PARAMETER, const void* const, u32);
+            void(*GetParameter)(Graphics::CameraID, RHI::D3D12::Camera::CameraParameter::PARAMETER, void* const, u32);
+        } camera;
 
         Renderer::GRAPHICS_PLATFORM platform = (Renderer::GRAPHICS_PLATFORM)-1;
     };

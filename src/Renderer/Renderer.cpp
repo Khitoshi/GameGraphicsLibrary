@@ -5,7 +5,6 @@
 namespace Renderer
 {
     namespace {
-        //RHI::d3d12::PlatformInterface gfx{};
         RHI::RHIPlatformInterface gfx{};
 
         bool SetPlatformInterface(GRAPHICS_PLATFORM platform)
@@ -26,6 +25,9 @@ namespace Renderer
         constexpr const char* engine_shader_paths[]{
             ".\\Shaders\\D3D12\\shaders.bin",
         };
+
+        //
+        constexpr const char* engine_models_paths = ".\\Models\\models.bin";
 
     }
 
@@ -50,16 +52,17 @@ namespace Renderer
         gfx.surface.Remove(id);
     }
 
-    const char* GetEngineShadersPath()
+    ::Graphics::Camera CreateCamera(::RHI::D3D12::Camera::CameraInitInfo info)
     {
-        return engine_shader_paths[(u32)gfx.platform];
+        return gfx.camera.Create(info);
     }
 
-    const char* GetEngineShadersPath(GRAPHICS_PLATFORM platform)
+    void RemoveCamera(::Graphics::CameraID id)
     {
-        return engine_shader_paths[(u32)platform];
+        gfx.camera.Remove(id);
     }
 
+#pragma region Getter
     void Surface::Resize(u32 width, u32 height) const
     {
         assert(is_valid());
@@ -83,6 +86,27 @@ namespace Renderer
         assert(is_valid());
         return gfx.surface.Render(id_);
     }
+
+    const char* GetEngineShadersPath()
+    {
+        return engine_shader_paths[(u32)gfx.platform];
+    }
+
+    const char* GetEngineShadersPath(GRAPHICS_PLATFORM platform)
+    {
+        return engine_shader_paths[(u32)platform];
+    }
+
+    const char* GetEngineModelsPath()
+    {
+        return engine_models_paths;
+    }
+
+    const RHI::RHIPlatformInterface* GetPlatformInterface()
+    {
+        return &gfx;
+    }
+#pragma endregion //Getter
 
 }
 

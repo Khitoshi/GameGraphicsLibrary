@@ -43,6 +43,14 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>D:\Study\C++\GameGraphicsLibrary\ThirdParty\2020.3.7\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Study\C++\GameGraphicsLibrary\ThirdParty\2020.3.7\lib\x64\debug;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>D:\Study\C++\GameGraphicsLibrary\ThirdParty\2020.3.7\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Study\C++\GameGraphicsLibrary\ThirdParty\2020.3.7\lib\x64\release;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -56,7 +64,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>./packages/DirectXShaderCompiler/lib/x64/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>dxcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxcompiler.lib;libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>powershell -ExecutionPolicy Bypass -File $(SolutionDir)GetDXC.ps1 $(SolutionDir)packages\DirectXShaderCompiler\</Command>
@@ -79,17 +87,24 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>./packages/DirectXShaderCompiler/lib/x64/</AdditionalLibraryDirectories>
-      <AdditionalDependencies>dxcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxcompiler.lib;libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>powershell -ExecutionPolicy Bypass -File $(SolutionDir)GetDXC.ps1 $(SolutionDir)packages\DirectXShaderCompiler\</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Components\Entity.cpp" />
+    <ClCompile Include="src\Components\Transform.cpp" />
     <ClCompile Include="src\Content\ContentLoader.cpp" />
+    <ClCompile Include="src\Content\FbxImporter.cpp" />
+    <ClCompile Include="src\Content\Geometry.cpp" />
+    <ClCompile Include="src\EngineAPI\Camera.cpp" />
     <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\ModelSerializetion.cpp" />
     <ClCompile Include="src\Platform\Window.cpp" />
     <ClCompile Include="src\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12Camera.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12CommandAllocator.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12CommandList.cpp" />
     <ClCompile Include="src\RHI\DirectX12\D3D12CommandQueue.cpp" />
@@ -112,9 +127,20 @@
     <ClCompile Include="src\TestRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Components\ComponentsCommon.h" />
+    <ClInclude Include="src\Components\Entity.h" />
+    <ClInclude Include="src\Components\Transform.h" />
+    <ClInclude Include="src\Content\ContentCommon.h" />
     <ClInclude Include="src\Content\ContentLoader.h" />
     <ClInclude Include="src\Content\ContentToEngine.h" />
+    <ClInclude Include="src\Content\FbxImporter.h" />
+    <ClInclude Include="src\Content\Geometry.h" />
+    <ClInclude Include="src\EngineAPI\Camera.h" />
+    <ClInclude Include="src\EngineAPI\GameEntity.h" />
+    <ClInclude Include="src\EngineAPI\TransfromComponent.h" />
+    <ClInclude Include="src\ModelSerializetion.h" />
     <ClInclude Include="src\Renderer\Renderer.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12Camera.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12Content.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12DepthBuffer.h" />
     <ClInclude Include="src\RHI\DirectX12\D3D12Helpers.h" />

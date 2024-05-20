@@ -44,7 +44,6 @@ namespace RHI::D3D12::Parts
     {
         if (srv_.IsValid())Core::GetSRVHeap().Free(srv_);
         if (resource_ != nullptr)Core::Detail::DeferredRelease(resource_);
-
     }
 
 }
