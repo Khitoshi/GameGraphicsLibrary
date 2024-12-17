@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|Win32">
-      <Configuration>Release</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
@@ -17,7 +9,6 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -27,19 +18,6 @@
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -53,66 +31,44 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
-
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="Shared" >
+  <ImportGroup Label="Shared">
   </ImportGroup>
-    <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    </ImportGroup>
-    <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    </ImportGroup>
-    <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    </ImportGroup>
-    <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    </ImportGroup>
-
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>D:\Study\C++\GameGraphicsLibrary\ThirdParty\2020.3.7\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Study\C++\GameGraphicsLibrary\ThirdParty\2020.3.7\lib\x64\debug;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>D:\Study\C++\GameGraphicsLibrary\ThirdParty\2020.3.7\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Study\C++\GameGraphicsLibrary\ThirdParty\2020.3.7\lib\x64\release;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>src\Utilities;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>./packages/DirectXShaderCompiler/lib/x64/</AdditionalLibraryDirectories>
+      <AdditionalDependencies>dxcompiler.lib;libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>powershell -ExecutionPolicy Bypass -File $(SolutionDir)GetDXC.ps1 $(SolutionDir)packages\DirectXShaderCompiler\</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -122,16 +78,134 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>src\Utilities;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>./packages/DirectXShaderCompiler/lib/x64/</AdditionalLibraryDirectories>
+      <AdditionalDependencies>dxcompiler.lib;libfbxsdk.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>powershell -ExecutionPolicy Bypass -File $(SolutionDir)GetDXC.ps1 $(SolutionDir)packages\DirectXShaderCompiler\</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
-
-  <ItemGroup></ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Components\Entity.cpp" />
+    <ClCompile Include="src\Components\Transform.cpp" />
+    <ClCompile Include="src\Content\ContentLoader.cpp" />
+    <ClCompile Include="src\Content\FbxImporter.cpp" />
+    <ClCompile Include="src\Content\Geometry.cpp" />
+    <ClCompile Include="src\EngineAPI\Camera.cpp" />
+    <ClCompile Include="src\Main.cpp" />
+    <ClCompile Include="src\ModelSerializetion.cpp" />
+    <ClCompile Include="src\Platform\Window.cpp" />
+    <ClCompile Include="src\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12Camera.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12CommandAllocator.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12CommandList.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12CommandQueue.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12Content.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12Core.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12DepthBuffer.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12DescriptorHeap.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12Device.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12Fence.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12Helpers.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12Interface.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12PostProcess.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12RenderTexture.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12Shaders.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12SwapChain.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12Texture.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12Gpass.cpp" />
+    <ClCompile Include="src\RHI\DirectX12\D3D12Upload.cpp" />
+    <ClCompile Include="src\ShaderCompilation.cpp" />
+    <ClCompile Include="src\TestRenderer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Components\ComponentsCommon.h" />
+    <ClInclude Include="src\Components\Entity.h" />
+    <ClInclude Include="src\Components\Transform.h" />
+    <ClInclude Include="src\Content\ContentCommon.h" />
+    <ClInclude Include="src\Content\ContentLoader.h" />
+    <ClInclude Include="src\Content\ContentToEngine.h" />
+    <ClInclude Include="src\Content\FbxImporter.h" />
+    <ClInclude Include="src\Content\Geometry.h" />
+    <ClInclude Include="src\EngineAPI\Camera.h" />
+    <ClInclude Include="src\EngineAPI\GameEntity.h" />
+    <ClInclude Include="src\EngineAPI\TransfromComponent.h" />
+    <ClInclude Include="src\ModelSerializetion.h" />
+    <ClInclude Include="src\Renderer\Renderer.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12Camera.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12Content.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12DepthBuffer.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12Helpers.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12PipelineStateObject.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12PostProcess.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12RenderTexture.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12Shaders.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12SwapChain.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12CommandAllocator.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12CommandList.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12CommandQueue.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12CommonHeaders.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12Core.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12DescriptorHeap.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12Device.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12Fence.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12Interface.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12Texture.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12Gpass.h" />
+    <ClInclude Include="src\RHI\DirectX12\D3D12Upload.h" />
+    <ClInclude Include="src\RHI\RHICommandQueue.h" />
+    <ClInclude Include="src\RHI\RHIPlatformInterface.h" />
+    <ClInclude Include="src\Platform\Window.h" />
+    <ClInclude Include="src\ShaderCompilation.h" />
+    <ClInclude Include="src\Test.h" />
+    <ClInclude Include="src\TestRenderer.h" />
+    <ClInclude Include="src\Utilities\CommonHeaders.h" />
+    <ClInclude Include="src\Utilities\FreeList.h" />
+    <ClInclude Include="src\Utilities\IOStream.h" />
+    <ClInclude Include="src\Utilities\UMath.h" />
+    <ClInclude Include="src\Utilities\MathTypes.h" />
+    <ClInclude Include="src\Utilities\PrimitiveTypes.h" />
+    <ClInclude Include="src\Renderer\Timer.h" />
+    <ClInclude Include="src\Utilities\Utilities.h" />
+    <ClInclude Include="src\Utilities\Vector.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="src\RHI\DirectX12\Shaders\FillColor.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">FillColorPS</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.5</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">FillColorPS</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.5</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="src\RHI\DirectX12\Shaders\FullScreenTriangle.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">FullScreenTriangleVS</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.5</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">FullScreenTriangleVS</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.5</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="src\RHI\DirectX12\Shaders\PostProcess.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PostProcessPS</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">6.5</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PostProcessPS</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">6.5</ShaderModel>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\RHI\DirectX12\Shaders\Fractals.hlsli" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
